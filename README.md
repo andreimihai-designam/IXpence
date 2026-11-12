@@ -75,3 +75,9 @@ Iconița de resetare din antet resetează alocările lunii selectate, fără să
 ## Logo IXpence
 
 Logoul de referință este reinterpretat în SVG transparent: monede, grafic ascendent, arc turcoaz și inscripția IXpence. `ixpence-logo.svg` este varianta completă, `ixpence-logo-light.svg` adaptează inscripția pentru tema luminoasă, iar `ixpence-icon.svg` este varianta compactă. Faviconul folosește același simbol. SVG-urile sunt autonome, cu litere convertite în trasee, fără fonturi externe.
+
+## GitHub Pages
+
+Workflow-ul `.github/workflows/deploy-pages.yml` verifică aplicația și publică directorul `dist` la fiecare push pe `main`. În repository, GitHub Pages trebuie configurat cu Source: **GitHub Actions** (Settings → Pages). Toate modificările ulterioare se încarcă în același repository `andreimihai-designam/Expencer`.
+
+Datele din browserul de pe adresa Sites nu se mută automat la adresa GitHub Pages. Sunt două origini diferite; exportă datele vechi în CSV înainte de schimbarea adresei. Versiunea curentă oferă export, nu import.
