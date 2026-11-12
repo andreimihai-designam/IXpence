@@ -17,6 +17,7 @@ Deschide `http://localhost:8000`. Modulele JavaScript necesită HTTP; nu deschid
 - Dashboard cu sold disponibil (venituri minus cheltuieli), venituri, cheltuieli și buget rămas.
 - Tranzacții: adăugare, editare, ștergere cu confirmare; denumire, sumă, tip, categorie, dată, descriere.
 - Buget separat pentru fiecare lună, editabil; 0 înseamnă neconfigurat.
+- Bugete lunare pe categorii, introduse de utilizator în Categorii, cu progres, cheltuit și rămas. La Datorii se urmărește suma planificată pentru plata lunii, nu soldul total al împrumuturilor. Bugetele pe categorii nu modifică automat bugetul general.
 - Filtrare după lună, căutare în denumire/descriere, categorie și tip; paginare.
 - Grafice SVG responsive, fără dependențe externe: cheltuieli zilnice și distribuție pe categorii.
 - Categorii implicite și categorii personalizate cu redenumire și ștergere. La ștergerea unei categorii personalizate, tranzacțiile sunt mutate la „Alte cheltuieli”.

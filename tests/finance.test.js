@@ -10,3 +10,22 @@ test('Categories and daily chart agree with transaction totals',()=>{const curre
 test('CSV escapes quotes, Unicode, multiline descriptions and formulas',()=>{const out=csv([{...rows[1],name:'=SUM(A1)',description:'Cafea "bună"\nacasă'}],DEFAULT_CATEGORIES);assert.ok(out.startsWith('\uFEFF'));assert.ok(out.includes('"\'=SUM(A1)"'));assert.ok(out.includes('"100,25"'));assert.ok(out.includes('"Cafea ""bună""\nacasă"'));});
 test('Local storage round trip persists edits, categories, monthly budgets and theme',()=>{let raw=null;globalThis.localStorage={getItem:()=>raw,setItem:(key,value)=>raw=value};const s=initialState();s.transactions=structuredClone(rows);s.transactions[1].amount=31025;s.budgets['2026-11']=500000;s.theme='light';s.categories.push({id:'custom',name:'Vacanță',custom:true});saveState(s);assert.deepEqual(loadState(),s);raw='{invalid';assert.throws(()=>loadState());});
 test('Demo data respects month and has unique IDs',()=>{const d=demoTransactions('2026-11');assert.ok(d.every(t=>t.date.startsWith('2026-11')));assert.equal(new Set(d.map(t=>t.id)).size,d.length);});
+
+test('Category budgets isolate months, ignore income and update after edits',async()=>{
+ const {categoryBudgetSummary}=await import('../dist/finance.js');
+ const budgets={'2026-11':{'cat-0':20000},'2026-12':{'cat-0':50000}};
+ const current=categoryBudgetSummary([...rows,{...rows[0],category:'cat-0'}],DEFAULT_CATEGORIES,budgets,'2026-11');
+ assert.equal(current[0].allocated,20000);assert.equal(current[0].spent,11300);assert.equal(current[0].remaining,8700);
+ assert.equal(current[1].remaining,null);
+ const edited=rows.map(t=>t.id==='2'?{...t,amount:30000}:t);
+ assert.equal(categoryBudgetSummary(edited,DEFAULT_CATEGORIES,budgets,'2026-11')[0].remaining,-11275);
+ assert.equal(categoryBudgetSummary(rows,DEFAULT_CATEGORIES,budgets,'2026-12')[0].remaining,50000);
+ assert.equal(categoryBudgetSummary(rows,DEFAULT_CATEGORIES,{},'2026-11')[0].allocated,0);
+});
+test('Existing saved data gains empty category budgets without changing transactions',()=>{
+ const old=initialState();delete old.categoryBudgets;old.transactions=structuredClone(rows);
+ let raw=JSON.stringify(old);globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};
+ const loaded=loadState();assert.deepEqual(loaded.categoryBudgets,{});assert.deepEqual(loaded.transactions,rows);
+ loaded.categoryBudgets['2026-11']={'cat-0':12345};saveState(loaded);assert.equal(loadState().categoryBudgets['2026-11']['cat-0'],12345);
+ assert.deepEqual(initialState().categoryBudgets,{});
+});

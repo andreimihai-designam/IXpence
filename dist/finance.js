@@ -7,3 +7,12 @@ export function inMonth(transactions,month){return transactions.filter(t=>t.date
 export function breakdown(transactions,categories){return categories.map(c=>({...c,total:transactions.filter(t=>t.type==='expense'&&t.category===c.id).reduce((s,t)=>s+t.amount,0)})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);}
 export function dailyExpenses(transactions,month){const days=new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate();return Array.from({length:days},(_,i)=>({day:i+1,total:transactions.filter(t=>t.type==='expense'&&Number(t.date.slice(8))===i+1).reduce((s,t)=>s+t.amount,0)}));}
 export function csv(transactions,categories){const cell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};return '\uFEFF'+[['Denumire','Categorie','Dată','Tip','Sumă (RON)','Descriere'],...transactions.map(t=>[t.name,categories.find(c=>c.id===t.category)?.name||'',t.date,t.type==='income'?'Venit':'Cheltuială',(t.amount/100).toFixed(2).replace('.',','),t.description])].map(r=>r.map(cell).join(';')).join('\r\n');}
+
+export function categoryBudgetSummary(transactions,categories,categoryBudgets,month){
+  const rows=inMonth(transactions,month);
+  return categories.map(c=>{
+    const allocated=categoryBudgets?.[month]?.[c.id]||0;
+    const spent=rows.filter(t=>t.type==='expense'&&t.category===c.id).reduce((sum,t)=>sum+t.amount,0);
+    return {...c,allocated,spent,remaining:allocated?allocated-spent:null,used:allocated?spent*100/allocated:0};
+  });
+}
