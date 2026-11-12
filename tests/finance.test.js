@@ -29,3 +29,22 @@ test('Existing saved data gains empty category budgets without changing transact
  loaded.categoryBudgets['2026-11']={'cat-0':12345};saveState(loaded);assert.equal(loadState().categoryBudgets['2026-11']['cat-0'],12345);
  assert.deepEqual(initialState().categoryBudgets,{});
 });
+
+test('Monthly salary creates income and budget once, then updates in place',async()=>{
+ const {setMonthlySalary}=await import('../dist/finance.js');const s=initialState();s.categoryBudgets['2026-11']={'cat-0':10000};
+ setMonthlySalary(s,{month:'2026-11',amount:500000,date:'2026-11-12'});
+ const id=s.transactions[0].id;assert.equal(s.budgets['2026-11'],500000);assert.equal(s.transactions[0].type,'income');
+ setMonthlySalary(s,{month:'2026-11',amount:650000,date:'2026-11-13'});
+ assert.equal(s.transactions.length,1);assert.equal(s.transactions[0].id,id);assert.equal(s.transactions[0].amount,650000);
+ assert.equal(s.categoryBudgets['2026-11']['cat-0'],10000);
+ setMonthlySalary(s,{month:'2026-12',amount:600000,date:'2026-12-10'});
+ assert.equal(s.transactions.length,2);assert.equal(s.budgets['2026-11'],650000);assert.equal(s.budgets['2026-12'],600000);
+});
+test('Monthly salary can reuse existing income without duplication',async()=>{
+ const {setMonthlySalary}=await import('../dist/finance.js');const s=initialState();s.transactions=structuredClone(rows);
+ setMonthlySalary(s,{month:'2026-11',amount:700000,date:'2026-11-02',transactionId:'1'});
+ assert.equal(s.transactions.length,rows.length);assert.equal(s.transactions[0].salaryMonth,'2026-11');assert.equal(s.transactions[0].amount,700000);
+ assert.throws(()=>setMonthlySalary(s,{month:'2026-11',amount:0,date:'2026-11-02'}));
+ assert.throws(()=>setMonthlySalary(s,{month:'2026-11',amount:100,date:'2026-12-02'}));
+ assert.throws(()=>setMonthlySalary(s,{month:'2026-11',amount:100,date:'2026-11-02',transactionId:'2'}));
+});

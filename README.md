@@ -14,6 +14,7 @@ Deschide `http://localhost:8000`. Modulele JavaScript necesită HTTP; nu deschid
 
 ## Funcționalități
 
+- Buton „Adaugă buget” pe dashboard: salariul este înregistrat ca venit și buget lunar. Poți asocia un venit deja introdus pentru a evita dublarea. Editarea salariului actualizează același venit; ștergerea lui elimină bugetul general asociat, dar păstrează alocările pe categorii.
 - Dashboard cu sold disponibil (venituri minus cheltuieli), venituri, cheltuieli și buget rămas.
 - Tranzacții: adăugare, editare, ștergere cu confirmare; denumire, sumă, tip, categorie, dată, descriere.
 - Buget separat pentru fiecare lună, editabil; 0 înseamnă neconfigurat.

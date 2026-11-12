@@ -16,3 +16,15 @@ export function categoryBudgetSummary(transactions,categories,categoryBudgets,mo
     return {...c,allocated,spent,remaining:allocated?allocated-spent:null,used:allocated?spent*100/allocated:0};
   });
 }
+
+export function setMonthlySalary(state,{month,amount,date,transactionId=null}){
+  if(!Number.isSafeInteger(amount)||amount<=0)throw Error('Salariul trebuie să fie mai mare decât zero.');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!date.startsWith(month+'-')||new Date(date+'T12:00:00').toISOString().slice(0,10)!==date)throw Error('Data salariului trebuie să fie în luna selectată.');
+  const linked=state.transactions.find(t=>t.salaryMonth===month);
+  const existing=transactionId?state.transactions.find(t=>t.id===transactionId):linked;
+  if(transactionId&&(!existing||existing.type!=='income'||!existing.date.startsWith(month+'-')))throw Error('Selectează un venit din luna curentă.');
+  if(linked&&existing&&linked.id!==existing.id)throw Error('Salariul acestei luni este deja asociat altei tranzacții.');
+  if(existing){existing.amount=amount;existing.date=date;existing.salaryMonth=month;}
+  else state.transactions.push({id:crypto.randomUUID(),name:'Salariu',amount,date,type:'income',category:'cat-8',description:'Salariu alocat bugetului lunar.',salaryMonth:month});
+  state.budgets[month]=amount;
+}
