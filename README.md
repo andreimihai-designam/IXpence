@@ -22,7 +22,7 @@ Deschide `http://localhost:8000`. Modulele JavaScript necesită HTTP; nu deschid
 - Bugete lunare pe categorii, introduse de utilizator în Categorii, cu progres, cheltuit și rămas. La Datorii se urmărește suma planificată pentru plata lunii, nu soldul total al împrumuturilor. Bugetele pe categorii nu modifică automat bugetul general.
 - Filtrare după lună, căutare în denumire/descriere, categorie și tip; paginare.
 - Grafice SVG responsive, fără dependențe externe: cheltuieli zilnice și distribuție pe categorii.
-- Categorii implicite și categorii personalizate cu redenumire și ștergere. La ștergerea unei categorii personalizate, tranzacțiile sunt mutate la „Alte cheltuieli”.
+- Categorii și subcategorii cu resetarea bugetului, redenumire, adăugare și ștergere. La ștergere, tranzacțiile sunt păstrate fără categorie, iar subcategoriile devin categorii principale.
 - Export CSV al selecției filtrate, al lunii sau al tuturor tranzacțiilor; codificare UTF-8 și protecție împotriva formulelor în celule.
 - Dark/Light Mode, sidebar restrâns și navigare mobilă.
 - Persistență în `localStorage` (cheia `jarvis-expencer-v1`). Datele nu sunt trimise la server.
@@ -60,7 +60,7 @@ Inter: SIL Open Font License 1.1. Lucide: ISC License. Vezi `THIRD_PARTY_LICENSE
 
 ## Structura categoriilor
 
-Mașină (Motorină, Asigurare, ITP, Consumabile, Parcare, Reparații); Divertisment (Evenimente, Ieșiri); Economii (Călătorii, Apartament); Facturi (Abonamente, Contracte); Cumpărături (Alimentație, Diverse); Diverse (Sănătate, Alte cheltuieli); Datorii.
+Mașină (Motorină, Asigurare, ITP, Consumabile, Parcare, Reparații); Divertisment (Evenimente, Ieșiri); Economii (Călătorii, Apartament); Facturi; Cumpărături (Alimentație, Diverse); Diverse (Sănătate, Alte cheltuieli); Datorii.
 
 Tranzacțiile și alocările vechi ale categoriilor devenite grupuri sunt păstrate sub identificatorii originali. În luna în care există sume directe pe grup, apare un card „Alocare anterioară”, pentru ajustare manuală. Aceste sume intră în total o singură dată. Tranzacțiile noi folosesc subcategoriile, iar filtrele pe grup includ subcategoriile și tranzacțiile anterioare.
 

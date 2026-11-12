@@ -74,7 +74,7 @@ test('CSV identifies a subcategory using its parent path',async()=>{
 
 test('Requested category groups have the exact subcategories and distinct Diverse paths',async()=>{
  const {categoryLabel}=await import('../dist/finance.js');
- const expected={'Divertisment':['Evenimente','Ieșiri'],'Economii':['Călătorii','Apartament'],'Facturi':['Abonamente','Contracte'],'Cumpărături':['Alimentație','Diverse'],'Diverse':['Sănătate','Alte cheltuieli']};
+ const expected={'Divertisment':['Evenimente','Ieșiri'],'Economii':['Călătorii','Apartament'],'Facturi':[],'Cumpărături':['Alimentație','Diverse'],'Diverse':['Sănătate','Alte cheltuieli']};
  for(const [name,children] of Object.entries(expected)){const group=DEFAULT_CATEGORIES.find(c=>c.isGroup&&c.name===name);assert.ok(group);assert.deepEqual(DEFAULT_CATEGORIES.filter(c=>c.parentId===group.id).map(c=>c.name),children);}
  const child=DEFAULT_CATEGORIES.find(c=>c.id==='cat-shopping-misc');assert.equal(categoryLabel(child,DEFAULT_CATEGORIES),'Cumpărături / Diverse');
  assert.ok(!DEFAULT_CATEGORIES.find(c=>c.id==='cat-4').isGroup);

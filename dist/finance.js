@@ -14,8 +14,6 @@ DEFAULT_CATEGORIES.forEach(c=>Object.assign(c,categoryStructure[c.id]||{}));
 DEFAULT_CATEGORIES.push(
  {id:'cat-outings',name:'Ieșiri',parentId:'cat-6',custom:false,color:'#a78bfa',icon:'glass-water'},
  {id:'cat-apartment',name:'Apartament',parentId:'cat-7',custom:false,color:'#4ade80',icon:'house'},
- {id:'cat-subscriptions',name:'Abonamente',parentId:'cat-2',custom:false,color:'#fbbf24',icon:'repeat'},
- {id:'cat-contracts',name:'Contracte',parentId:'cat-2',custom:false,color:'#fbbf24',icon:'file-text'},
  {id:'cat-shopping-misc',name:'Diverse',parentId:'cat-3',custom:false,color:'#f472b6',icon:'shopping-bag'},
  {id:'cat-misc',name:'Diverse',isGroup:true,custom:false,color:'#94a3b8',icon:'shapes'}
 );
@@ -46,7 +44,7 @@ export function setMonthlySalary(state,{month,amount,date,transactionId=null}){
   if(transactionId&&(!existing||existing.type!=='income'||!existing.date.startsWith(month+'-')))throw Error('Selectează un venit din luna curentă.');
   if(linked&&existing&&linked.id!==existing.id)throw Error('Salariul acestei luni este deja asociat altei tranzacții.');
   if(existing){existing.amount=amount;existing.date=date;existing.salaryMonth=month;}
-  else state.transactions.push({id:crypto.randomUUID(),name:'Salariu',amount,date,type:'income',category:'cat-8',description:'Salariu alocat bugetului lunar.',salaryMonth:month});
+  else state.transactions.push({id:crypto.randomUUID(),name:'Salariu',amount,date,type:'income',category:state.categories.some(c=>c.id==='cat-8')?'cat-8':'uncategorized',description:'Salariu alocat bugetului lunar.',salaryMonth:month});
   state.budgets[month]=amount;
 }
 
