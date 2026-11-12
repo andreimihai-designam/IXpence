@@ -18,6 +18,7 @@ Deschide `http://localhost:8000`. Modulele JavaScript necesită HTTP; nu deschid
 - Dashboard cu sold disponibil (venituri minus cheltuieli), venituri, cheltuieli și buget rămas.
 - Tranzacții: adăugare, editare, ștergere cu confirmare; denumire, sumă, tip, categorie, dată, descriere.
 - Buget separat pentru fiecare lună, editabil; 0 înseamnă neconfigurat.
+- Rezumat în Categorii: buget total, alocat și rămas de repartizat (buget minus alocări), separat de cheltuieli. Mașină grupează Motorină, Asigurare, ITP, Consumabile, Parcare și Reparații; bugetul grupului este calculat din subcategorii și nu este numărat de două ori. Călătorii și Evenimente sunt categorii separate. Datele vechi de Transport / Motorină sunt păstrate în subcategoria Motorină.
 - Bugete lunare pe categorii, introduse de utilizator în Categorii, cu progres, cheltuit și rămas. La Datorii se urmărește suma planificată pentru plata lunii, nu soldul total al împrumuturilor. Bugetele pe categorii nu modifică automat bugetul general.
 - Filtrare după lună, căutare în denumire/descriere, categorie și tip; paginare.
 - Grafice SVG responsive, fără dependențe externe: cheltuieli zilnice și distribuție pe categorii.

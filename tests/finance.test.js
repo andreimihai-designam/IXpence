@@ -48,3 +48,26 @@ test('Monthly salary can reuse existing income without duplication',async()=>{
  assert.throws(()=>setMonthlySalary(s,{month:'2026-11',amount:100,date:'2026-12-02'}));
  assert.throws(()=>setMonthlySalary(s,{month:'2026-11',amount:100,date:'2026-11-02',transactionId:'2'}));
 });
+
+test('Car subcategory allocations count once and change the available planning balance',async()=>{
+ const {allocationSummary,categoryBudgetSummary}=await import('../dist/finance.js');
+ const budgets={'2026-11':{'cat-1':50000,'cat-car-0':20000,'cat-travel':30000}};
+ assert.deepEqual(allocationSummary(DEFAULT_CATEGORIES,budgets,'2026-11',500000),{total:500000,allocated:100000,unallocated:400000});
+ const summary=categoryBudgetSummary([{type:'expense',amount:12000,category:'cat-1',date:'2026-11-03'}],DEFAULT_CATEGORIES,budgets,'2026-11');
+ const car=summary.find(c=>c.id==='cat-car');assert.equal(car.allocated,70000);assert.equal(car.spent,12000);
+ budgets['2026-11']['cat-1']=10000;assert.equal(allocationSummary(DEFAULT_CATEGORIES,budgets,'2026-11',500000).unallocated,440000);
+ delete budgets['2026-11']['cat-car-0'];assert.equal(allocationSummary(DEFAULT_CATEGORIES,budgets,'2026-11',500000).unallocated,460000);
+ assert.equal(allocationSummary(DEFAULT_CATEGORIES,budgets,'2026-12',500000).allocated,0);
+});
+test('Existing fuel data migrates without losing budgets or duplicating defaults',()=>{
+ const old=initialState();old.categories=old.categories.filter(c=>!c.id.startsWith('cat-car')&&!['cat-travel','cat-events'].includes(c.id));
+ old.categories.find(c=>c.id==='cat-1').name='Transport / Motorină';delete old.categories.find(c=>c.id==='cat-1').parentId;
+ old.categoryBudgets={'2026-11':{'cat-1':23000}};old.transactions=[{...rows[1],category:'cat-1'}];
+ let raw=JSON.stringify(old);globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};const loaded=loadState();
+ assert.equal(loaded.categories.find(c=>c.id==='cat-1').parentId,'cat-car');assert.equal(loaded.categoryBudgets['2026-11']['cat-1'],23000);
+ assert.deepEqual(loaded.transactions,old.transactions);assert.equal(loaded.categories.filter(c=>c.parentId==='cat-car').length,6);
+ saveState(loaded);assert.equal(loadState().categories.length,loaded.categories.length);assert.equal(new Set(loaded.categories.map(c=>c.id)).size,loaded.categories.length);
+});
+test('CSV identifies a subcategory using its parent path',async()=>{
+ const {csv}=await import('../dist/finance.js');const output=csv([{...rows[1],category:'cat-1'}],DEFAULT_CATEGORIES);assert.ok(output.includes('Mașină / Motorină'));
+});
