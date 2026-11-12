@@ -2,7 +2,7 @@ import {DEFAULT_CATEGORIES} from './finance.js';
 const KEY='jarvis-expencer-v1';
 export function initialState(){return {version:1,transactions:[],categories:structuredClone(DEFAULT_CATEGORIES),budgets:{},categoryBudgets:{},theme:'dark',collapsed:false};}
 export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.categoryBudgets ??= {};
-for(const category of DEFAULT_CATEGORIES){if(!s.categories.some(c=>c.id===category.id))s.categories.push(structuredClone(category));}
+for(const category of DEFAULT_CATEGORIES){const existing=s.categories.find(c=>c.id===category.id);if(existing)Object.assign(existing,structuredClone(category));else s.categories.push(structuredClone(category));}
 const fuel=s.categories.find(c=>c.id==='cat-1');if(fuel){fuel.name='Motorină';fuel.parentId='cat-car';}
 return s;}
 export function saveState(state){localStorage.setItem(KEY,JSON.stringify(state));}

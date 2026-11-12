@@ -5,6 +5,20 @@ DEFAULT_CATEGORIES.push(
 {id:'cat-travel',name:'Călătorii',custom:false,color:'#2dd4bf',icon:'plane'},
 {id:'cat-events',name:'Evenimente',custom:false,color:'#f472b6',icon:'calendar-heart'}
 );
+const categoryStructure={
+ 'cat-0':{parentId:'cat-3'},'cat-2':{isGroup:true},'cat-3':{isGroup:true},
+ 'cat-5':{parentId:'cat-misc'},'cat-6':{isGroup:true},'cat-7':{isGroup:true},
+ 'cat-8':{parentId:'cat-misc'},'cat-travel':{parentId:'cat-7'},'cat-events':{parentId:'cat-6'}
+};
+DEFAULT_CATEGORIES.forEach(c=>Object.assign(c,categoryStructure[c.id]||{}));
+DEFAULT_CATEGORIES.push(
+ {id:'cat-outings',name:'Ieșiri',parentId:'cat-6',custom:false,color:'#a78bfa',icon:'glass-water'},
+ {id:'cat-apartment',name:'Apartament',parentId:'cat-7',custom:false,color:'#4ade80',icon:'house'},
+ {id:'cat-subscriptions',name:'Abonamente',parentId:'cat-2',custom:false,color:'#fbbf24',icon:'repeat'},
+ {id:'cat-contracts',name:'Contracte',parentId:'cat-2',custom:false,color:'#fbbf24',icon:'file-text'},
+ {id:'cat-shopping-misc',name:'Diverse',parentId:'cat-3',custom:false,color:'#f472b6',icon:'shopping-bag'},
+ {id:'cat-misc',name:'Diverse',isGroup:true,custom:false,color:'#94a3b8',icon:'shapes'}
+);
 export const money = n => new Intl.NumberFormat('ro-RO',{style:'currency',currency:'RON',minimumFractionDigits:2,maximumFractionDigits:2}).format(n/100);
 export const number = n => new Intl.NumberFormat('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n/100);
 export function parseMoney(raw){ const s=String(raw).trim(); if(!/^\d+(?:[.,]\d{1,2})?$/.test(s))throw Error('Introdu o sumă validă, cu cel mult două zecimale.'); const n=Math.round(Number(s.replace(',','.'))*100); if(!Number.isSafeInteger(n)||n>999999999999)throw Error('Suma este prea mare.');return n; }
@@ -17,7 +31,7 @@ export function csv(transactions,categories){const cell=v=>{let s=String(v??'');
 export function categoryBudgetSummary(transactions,categories,categoryBudgets,month){
   const rows=inMonth(transactions,month);
   return categories.map(c=>{
-    const ids=c.isGroup?categories.filter(child=>child.parentId===c.id).map(child=>child.id):[c.id];
+    const ids=c.isGroup?[c.id,...categories.filter(child=>child.parentId===c.id).map(child=>child.id)]:[c.id];
     const allocated=ids.reduce((sum,id)=>sum+(categoryBudgets?.[month]?.[id]||0),0);
     const spent=rows.filter(t=>t.type==='expense'&&ids.includes(t.category)).reduce((sum,t)=>sum+t.amount,0);
     return {...c,allocated,spent,remaining:allocated?allocated-spent:null,used:allocated?spent*100/allocated:0};
@@ -37,7 +51,7 @@ export function setMonthlySalary(state,{month,amount,date,transactionId=null}){
 }
 
 export function allocationSummary(categories,categoryBudgets,month,total){
- const allocated=categories.filter(c=>!c.isGroup).reduce((sum,c)=>sum+(categoryBudgets?.[month]?.[c.id]||0),0);
+ const allocated=categories.reduce((sum,c)=>sum+(categoryBudgets?.[month]?.[c.id]||0),0);
  return {total,allocated,unallocated:total-allocated};
 }
 export function categoryLabel(category,categories){const parent=categories.find(c=>c.id===category?.parentId);return parent?parent.name+' / '+category.name:category?.name||'Fără categorie';}

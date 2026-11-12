@@ -71,3 +71,22 @@ test('Existing fuel data migrates without losing budgets or duplicating defaults
 test('CSV identifies a subcategory using its parent path',async()=>{
  const {csv}=await import('../dist/finance.js');const output=csv([{...rows[1],category:'cat-1'}],DEFAULT_CATEGORIES);assert.ok(output.includes('Mașină / Motorină'));
 });
+
+test('Requested category groups have the exact subcategories and distinct Diverse paths',async()=>{
+ const {categoryLabel}=await import('../dist/finance.js');
+ const expected={'Divertisment':['Evenimente','Ieșiri'],'Economii':['Călătorii','Apartament'],'Facturi':['Abonamente','Contracte'],'Cumpărături':['Alimentație','Diverse'],'Diverse':['Sănătate','Alte cheltuieli']};
+ for(const [name,children] of Object.entries(expected)){const group=DEFAULT_CATEGORIES.find(c=>c.isGroup&&c.name===name);assert.ok(group);assert.deepEqual(DEFAULT_CATEGORIES.filter(c=>c.parentId===group.id).map(c=>c.name),children);}
+ const child=DEFAULT_CATEGORIES.find(c=>c.id==='cat-shopping-misc');assert.equal(categoryLabel(child,DEFAULT_CATEGORIES),'Cumpărături / Diverse');
+ assert.ok(!DEFAULT_CATEGORIES.find(c=>c.id==='cat-4').isGroup);
+});
+test('Regrouping preserves old direct group budgets and totals without double counting',async()=>{
+ const {allocationSummary,categoryBudgetSummary}=await import('../dist/finance.js');
+ const s=initialState();s.categories=s.categories.filter(c=>!['cat-outings','cat-apartment','cat-subscriptions','cat-contracts','cat-shopping-misc','cat-misc'].includes(c.id));
+ for(const c of s.categories)if(['cat-2','cat-3','cat-6','cat-7'].includes(c.id))delete c.isGroup;
+ s.transactions=structuredClone(rows);s.categoryBudgets={'2026-11':{'cat-2':10000,'cat-3':20000,'cat-6':30000,'cat-7':40000,'cat-0':5000}};
+ let raw=JSON.stringify(s);globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};const loaded=loadState();
+ assert.deepEqual(loaded.transactions,s.transactions);assert.deepEqual(loaded.categoryBudgets,s.categoryBudgets);
+ assert.equal(allocationSummary(loaded.categories,loaded.categoryBudgets,'2026-11',200000).allocated,105000);
+ const group=categoryBudgetSummary(loaded.transactions,loaded.categories,loaded.categoryBudgets,'2026-11').find(c=>c.id==='cat-3');assert.equal(group.allocated,25000);assert.equal(group.spent,11300);
+ saveState(loaded);assert.equal(loadState().categories.length,loaded.categories.length);
+});

@@ -57,3 +57,9 @@ Repository canonic: `andreimihai-designam/Expencer`. Toate modificările ulterio
 ## Licențe terțe
 
 Inter: SIL Open Font License 1.1. Lucide: ISC License. Vezi `THIRD_PARTY_LICENSES.md`.
+
+## Structura categoriilor
+
+Mașină (Motorină, Asigurare, ITP, Consumabile, Parcare, Reparații); Divertisment (Evenimente, Ieșiri); Economii (Călătorii, Apartament); Facturi (Abonamente, Contracte); Cumpărături (Alimentație, Diverse); Diverse (Sănătate, Alte cheltuieli); Datorii.
+
+Tranzacțiile și alocările vechi ale categoriilor devenite grupuri sunt păstrate sub identificatorii originali. În luna în care există sume directe pe grup, apare un card „Alocare anterioară”, pentru ajustare manuală. Aceste sume intră în total o singură dată. Tranzacțiile noi folosesc subcategoriile, iar filtrele pe grup includ subcategoriile și tranzacțiile anterioare.
