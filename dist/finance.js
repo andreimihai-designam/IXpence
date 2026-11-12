@@ -64,6 +64,12 @@ export function setMealVouchers(state,month,amount){
  const previous=mealSummary(state,month);
  if(amount<previous.spent)throw Error('Totalul bonurilor nu poate fi mai mic decât suma deja cheltuită din bonuri.');
  state.mealVouchers ??= {};state.mealAllocations ??= {};
+ if(amount>0&&state.localCategories&&!state.categories.some(c=>c.id==='cat-0')){
+  const food=structuredClone(DEFAULT_CATEGORIES.find(c=>c.id==='cat-0'));
+  delete food.parentId;
+  state.categories.push(food);
+  state.deletedCategoryIds=state.deletedCategoryIds?.filter(id=>id!=='cat-0');
+ }
  state.mealVouchers[month]=amount;
  // New credit is assigned only to food; existing manual resets stay respected.
  state.mealAllocations[month]=Math.min(amount,Math.max(0,previous.allocated+amount-previous.received));

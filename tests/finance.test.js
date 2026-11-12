@@ -8,7 +8,7 @@ test('Monthly totals, budget overspending and zero budget',()=>{const current=in
 test('Edits and deletions recompute totals rather than retaining stale values',()=>{const copy=structuredClone(rows);copy[1].amount=20000;assert.equal(summarize(inMonth(copy,'2026-11')).expenses,21275);copy.splice(1,1);assert.equal(summarize(inMonth(copy,'2026-11')).expenses,1275);});
 test('Categories and daily chart agree with transaction totals',()=>{const current=inMonth(rows,'2026-11');assert.equal(breakdown(current,DEFAULT_CATEGORIES)[0].total,11300);const d=dailyExpenses(current,'2026-11');assert.equal(d.length,30);assert.equal(d[1].total,11300);assert.equal(d.reduce((s,x)=>s+x.total,0),11300);assert.equal(dailyExpenses([],'2024-02').length,29);});
 test('CSV escapes quotes, Unicode, multiline descriptions and formulas',()=>{const out=csv([{...rows[1],name:'=SUM(A1)',description:'Cafea "bună"\nacasă'}],DEFAULT_CATEGORIES);assert.ok(out.startsWith('\uFEFF'));assert.ok(out.includes('"\'=SUM(A1)"'));assert.ok(out.includes('"100,25"'));assert.ok(out.includes('"Cafea ""bună""\nacasă"'));});
-test('Local storage round trip persists edits, categories, monthly budgets and theme',()=>{let raw=null;globalThis.localStorage={getItem:()=>raw,setItem:(key,value)=>raw=value};const s=initialState();s.transactions=structuredClone(rows);s.transactions[1].amount=31025;s.budgets['2026-11']=500000;s.theme='light';s.categories.push({id:'custom',name:'Vacanță',custom:true});saveState(s);assert.deepEqual(loadState(),s);raw='{invalid';assert.throws(()=>loadState());});
+test('Local storage round trip persists edits, categories, monthly budgets and theme',()=>{let raw=null;globalThis.localStorage={getItem:()=>raw,setItem:(key,value)=>raw=value};const s=initialState({legacyCategories:true});s.transactions=structuredClone(rows);s.transactions[1].amount=31025;s.budgets['2026-11']=500000;s.theme='light';s.categories.push({id:'custom',name:'Vacanță',custom:true});saveState(s);assert.deepEqual(loadState(),s);raw='{invalid';assert.throws(()=>loadState());});
 test('Demo data respects month and has unique IDs',()=>{const d=demoTransactions('2026-11');assert.ok(d.every(t=>t.date.startsWith('2026-11')));assert.equal(new Set(d.map(t=>t.id)).size,d.length);});
 
 test('Category budgets isolate months, ignore income and update after edits',async()=>{
@@ -23,15 +23,15 @@ test('Category budgets isolate months, ignore income and update after edits',asy
  assert.equal(categoryBudgetSummary(rows,DEFAULT_CATEGORIES,{},'2026-11')[0].allocated,0);
 });
 test('Existing saved data gains empty category budgets without changing transactions',()=>{
- const old=initialState();delete old.categoryBudgets;old.transactions=structuredClone(rows);
+ const old=initialState({legacyCategories:true});delete old.categoryBudgets;old.transactions=structuredClone(rows);
  let raw=JSON.stringify(old);globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};
  const loaded=loadState();assert.deepEqual(loaded.categoryBudgets,{});assert.deepEqual(loaded.transactions,rows);
  loaded.categoryBudgets['2026-11']={'cat-0':12345};saveState(loaded);assert.equal(loadState().categoryBudgets['2026-11']['cat-0'],12345);
- assert.deepEqual(initialState().categoryBudgets,{});
+ assert.deepEqual(initialState({legacyCategories:true}).categoryBudgets,{});
 });
 
 test('Monthly salary creates income and budget once, then updates in place',async()=>{
- const {setMonthlySalary}=await import('../dist/finance.js');const s=initialState();s.categoryBudgets['2026-11']={'cat-0':10000};
+ const {setMonthlySalary}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});s.categoryBudgets['2026-11']={'cat-0':10000};
  setMonthlySalary(s,{month:'2026-11',amount:500000,date:'2026-11-12'});
  const id=s.transactions[0].id;assert.equal(s.budgets['2026-11'],500000);assert.equal(s.transactions[0].type,'income');
  setMonthlySalary(s,{month:'2026-11',amount:650000,date:'2026-11-13'});
@@ -41,7 +41,7 @@ test('Monthly salary creates income and budget once, then updates in place',asyn
  assert.equal(s.transactions.length,2);assert.equal(s.budgets['2026-11'],650000);assert.equal(s.budgets['2026-12'],600000);
 });
 test('Monthly salary can reuse existing income without duplication',async()=>{
- const {setMonthlySalary}=await import('../dist/finance.js');const s=initialState();s.transactions=structuredClone(rows);
+ const {setMonthlySalary}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});s.transactions=structuredClone(rows);
  setMonthlySalary(s,{month:'2026-11',amount:700000,date:'2026-11-02',transactionId:'1'});
  assert.equal(s.transactions.length,rows.length);assert.equal(s.transactions[0].salaryMonth,'2026-11');assert.equal(s.transactions[0].amount,700000);
  assert.throws(()=>setMonthlySalary(s,{month:'2026-11',amount:0,date:'2026-11-02'}));
@@ -60,7 +60,7 @@ test('Car subcategory allocations count once and change the available planning b
  assert.equal(allocationSummary(DEFAULT_CATEGORIES,budgets,'2026-12',500000).allocated,0);
 });
 test('Existing fuel data migrates without losing budgets or duplicating defaults',()=>{
- const old=initialState();old.categories=old.categories.filter(c=>!c.id.startsWith('cat-car')&&!['cat-travel','cat-events'].includes(c.id));
+ const old=initialState({legacyCategories:true});old.categories=old.categories.filter(c=>!c.id.startsWith('cat-car')&&!['cat-travel','cat-events'].includes(c.id));
  old.categories.find(c=>c.id==='cat-1').name='Transport / Motorină';delete old.categories.find(c=>c.id==='cat-1').parentId;
  old.categoryBudgets={'2026-11':{'cat-1':23000}};old.transactions=[{...rows[1],category:'cat-1'}];
  let raw=JSON.stringify(old);globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};const loaded=loadState();
@@ -81,7 +81,7 @@ test('Requested category groups have the exact subcategories and distinct Divers
 });
 test('Regrouping preserves old direct group budgets and totals without double counting',async()=>{
  const {allocationSummary,categoryBudgetSummary}=await import('../dist/finance.js');
- const s=initialState();s.categories=s.categories.filter(c=>!['cat-outings','cat-apartment','cat-subscriptions','cat-contracts','cat-shopping-misc','cat-misc'].includes(c.id));
+ const s=initialState({legacyCategories:true});s.categories=s.categories.filter(c=>!['cat-outings','cat-apartment','cat-subscriptions','cat-contracts','cat-shopping-misc','cat-misc'].includes(c.id));
  for(const c of s.categories)if(['cat-2','cat-3','cat-6','cat-7'].includes(c.id))delete c.isGroup;
  s.transactions=structuredClone(rows);s.categoryBudgets={'2026-11':{'cat-2':10000,'cat-3':20000,'cat-6':30000,'cat-7':40000,'cat-0':5000}};
  let raw=JSON.stringify(s);globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};const loaded=loadState();
@@ -92,7 +92,7 @@ test('Regrouping preserves old direct group budgets and totals without double co
 });
 
 test('Resetting a group clears monthly allocations only and preserves transactions and salary',async()=>{
- const {resetCategoryBudget}=await import('../dist/finance.js');const s=initialState();s.transactions=structuredClone(rows);s.budgets['2026-11']=500000;
+ const {resetCategoryBudget}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});s.transactions=structuredClone(rows);s.budgets['2026-11']=500000;
  s.categoryBudgets={'2026-11':{'cat-3':10000,'cat-0':20000,'cat-shopping-misc':5000,'cat-4':8000},'2026-12':{'cat-0':9000}};
  s.mealVouchers['2026-11']=40000;s.mealAllocations['2026-11']=40000;
  resetCategoryBudget(s,'2026-11','cat-3');assert.deepEqual(s.categoryBudgets['2026-11'],{'cat-4':8000});assert.equal(s.mealAllocations['2026-11'],0);
@@ -100,7 +100,7 @@ test('Resetting a group clears monthly allocations only and preserves transactio
  resetCategoryBudget(s,'2026-11','cat-4');assert.equal(s.categoryBudgets['2026-11']['cat-4'],undefined);
 });
 test('Voucher credit is food-only and does not reduce cash allocation balance',async()=>{
- const {setMealVouchers,mealSummary,categoryBudgetSummary,allocationSummary}=await import('../dist/finance.js');const s=initialState();
+ const {setMealVouchers,mealSummary,categoryBudgetSummary,allocationSummary}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});
  s.categoryBudgets={'2026-11':{'cat-0':10000}};setMealVouchers(s,'2026-11',50000);
  assert.deepEqual(mealSummary(s,'2026-11'),{received:50000,allocated:50000,spent:0,remaining:50000,unallocated:0});
  const cats=categoryBudgetSummary(s.transactions,s.categories,s.categoryBudgets,'2026-11',50000);assert.equal(cats.find(c=>c.id==='cat-0').allocated,60000);assert.equal(cats.find(c=>c.id==='cat-3').allocated,60000);assert.equal(cats.find(c=>c.id==='cat-4').mealAllocation,0);
@@ -108,7 +108,7 @@ test('Voucher credit is food-only and does not reduce cash allocation balance',a
  setMealVouchers(s,'2026-11',60000);assert.equal(s.mealAllocations['2026-11'],60000);assert.equal(s.transactions.length,0);
 });
 test('Voucher payments update their own balance and preserve salary balance',async()=>{
- const {validateMealPayment,mealSummary,setMealVouchers}=await import('../dist/finance.js');const s=initialState();setMealVouchers(s,'2026-11',50000);
+ const {validateMealPayment,mealSummary,setMealVouchers}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});setMealVouchers(s,'2026-11',50000);
  const expense={id:'meal1',name:'Prânz',date:'2026-11-12',type:'expense',amount:15000,category:'cat-0',paymentSource:'meal'};validateMealPayment(s,expense);s.transactions=[rows[0],expense];
  const summary=summarize(s.transactions,900000);assert.equal(summary.expenses,15000);assert.equal(summary.balance,900000);assert.equal(summary.remaining,900000);assert.equal(mealSummary(s,'2026-11').remaining,35000);
  assert.throws(()=>validateMealPayment(s,{...expense,id:'new',category:'cat-4'}));assert.throws(()=>validateMealPayment(s,{...expense,id:'new',amount:40000}));assert.throws(()=>validateMealPayment(s,{...expense,type:'income'}));
@@ -116,16 +116,29 @@ test('Voucher payments update their own balance and preserve salary balance',asy
  const out=csv([expense],s.categories);assert.ok(out.includes('Bonuri de masă'));
 });
 test('Voucher state persists and resets do not silently allocate old credits again',async()=>{
- const {setMealVouchers,resetCategoryBudget}=await import('../dist/finance.js');const s=initialState();setMealVouchers(s,'2026-11',50000);resetCategoryBudget(s,'2026-11','cat-0');setMealVouchers(s,'2026-11',50000);assert.equal(s.mealAllocations['2026-11'],0);
+ const {setMealVouchers,resetCategoryBudget}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});setMealVouchers(s,'2026-11',50000);resetCategoryBudget(s,'2026-11','cat-0');setMealVouchers(s,'2026-11',50000);assert.equal(s.mealAllocations['2026-11'],0);
  setMealVouchers(s,'2026-11',60000);assert.equal(s.mealAllocations['2026-11'],10000);
  let raw;globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};saveState(s);assert.deepEqual(loadState().mealVouchers,s.mealVouchers);assert.deepEqual(loadState().mealAllocations,s.mealAllocations);
 });
 
 test('Total monthly income includes received vouchers once, independently of spending',async()=>{
- const {monthlyIncome,setMealVouchers}=await import('../dist/finance.js');const s=initialState();s.transactions=structuredClone(rows);
+ const {monthlyIncome,setMealVouchers}=await import('../dist/finance.js');const s=initialState({legacyCategories:true});s.transactions=structuredClone(rows);
  setMealVouchers(s,'2026-11',60000);assert.deepEqual(monthlyIncome(s,'2026-11'),{cash:900000,vouchers:60000,total:960000});
  setMealVouchers(s,'2026-11',70000);assert.equal(monthlyIncome(s,'2026-11').total,970000);
  s.transactions.push({id:'meal',date:'2026-11-12',type:'expense',category:'cat-0',amount:20000,paymentSource:'meal'});
  assert.equal(monthlyIncome(s,'2026-11').total,970000);assert.equal(summarize(inMonth(s.transactions,'2026-11')).balance,888700);
  assert.equal(monthlyIncome(s,'2026-12').total,0);assert.equal(s.transactions.filter(t=>t.type==='income').length,1);
+});
+
+test('New browser starts without categories and saves only its own list',()=>{
+ const stores=[new Map(),new Map()];
+ const select=index=>{globalThis.localStorage={getItem:key=>stores[index].get(key)??null,setItem:(key,value)=>stores[index].set(key,value)};};
+ select(0);
+ const state=loadState();
+ assert.deepEqual(state.categories,[]);
+ state.categories.push({id:'local-category',name:'Categorie proprie',custom:true});
+ saveState(state);
+ assert.deepEqual(loadState().categories,state.categories);
+ select(1);
+ assert.deepEqual(loadState().categories,[]);
 });

@@ -1,6 +1,6 @@
-import {DEFAULT_CATEGORIES} from './finance.js';
+import {DEFAULT_CATEGORIES} from './finance.js?v=local-categories';
 const KEY='jarvis-expencer-v1';
-export function initialState(){return {version:1,transactions:[],categories:structuredClone(DEFAULT_CATEGORIES),budgets:{},categoryBudgets:{},mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
+export function initialState({legacyCategories=false}={}){return {version:1,transactions:[],categories:legacyCategories?structuredClone(DEFAULT_CATEGORIES):[],...(legacyCategories?{}:{localCategories:true}),budgets:{},categoryBudgets:{},mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
 export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.categoryBudgets ??= {};s.mealVouchers ??= {};s.mealAllocations ??= {};
 const retiredIds=['cat-subscriptions','cat-contracts'];
 const deletedIds=new Set(s.deletedCategoryIds||[]);
@@ -13,7 +13,7 @@ for(const allocations of Object.values(s.categoryBudgets)){
  }
 }
 s.categories=s.categories.filter(c=>!retiredIds.includes(c.id)&&!deletedIds.has(c.id));
-for(const category of DEFAULT_CATEGORIES){
+if(!s.localCategories)for(const category of DEFAULT_CATEGORIES){
  if(deletedIds.has(category.id))continue;
  const existing=s.categories.find(c=>c.id===category.id);
  const defaults=structuredClone(category);
@@ -22,6 +22,17 @@ for(const category of DEFAULT_CATEGORIES){
   if(existing.renamed)delete defaults.name;
   Object.assign(existing,defaults);
  }else s.categories.push(defaults);
+}
+const onlyStarterCategories=!s.localCategories&&deletedIds.size===0&&
+ s.categories.length===DEFAULT_CATEGORIES.length&&DEFAULT_CATEGORIES.every(defaultCategory=>
+  s.categories.some(category=>category.id===defaultCategory.id&&!category.custom&&!category.renamed&&
+   category.name===defaultCategory.name&&category.parentId===defaultCategory.parentId&&
+   Boolean(category.isGroup)===Boolean(defaultCategory.isGroup)));
+const hasFinancialData=s.transactions.length||[s.budgets,s.categoryBudgets,s.mealVouchers,s.mealAllocations]
+ .some(values=>Object.keys(values).length);
+if(onlyStarterCategories&&!hasFinancialData){
+ s.categories=[];
+ s.localCategories=true;
 }
 return s;}
 export function saveState(state){localStorage.setItem(KEY,JSON.stringify(state));}
