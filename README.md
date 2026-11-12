@@ -71,3 +71,7 @@ Cardul Bonuri de masă păstrează un total lunar separat de salariu. Diferențe
 Iconița de resetare din antet resetează alocările lunii selectate, fără să șteargă tranzacțiile. La un grup resetează toate subcategoriile și alocările vechi directe. La Alimentație sau Cumpărături se resetează și alocarea din bonuri; valoarea bonurilor primite și plățile rămân salvate, iar bonurile nealocate pot fi realocate numai la Alimentație.
 
 În rezumatul de sus al dashboardului există un al cincilea card „Bonuri de masă”, cu totalul primit și soldul disponibil. „Venituri totale” include veniturile în bani plus totalul bonurilor primite în luna selectată. Bonurile sunt adăugate în total o singură dată, fără o tranzacție de venit în bani. Soldul în bani și bugetul salarial rămân calculate separat.
+
+## Logo IXpence
+
+Logoul de referință este reinterpretat în SVG transparent: monede, grafic ascendent, arc turcoaz și inscripția IXpence. `ixpence-logo.svg` este varianta completă, `ixpence-logo-light.svg` adaptează inscripția pentru tema luminoasă, iar `ixpence-icon.svg` este varianta compactă. Faviconul folosește același simbol. SVG-urile sunt autonome, cu litere convertite în trasee, fără fonturi externe.
