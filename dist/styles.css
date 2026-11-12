@@ -22,3 +22,9 @@
 .category-group-heading>div:last-child{flex-wrap:wrap;column-gap:12px}
 [data-add-child]{flex-shrink:0}
 .category-budget-card .category-card{flex-wrap:wrap}
+.category-allocation{flex-wrap:wrap;gap:6px}
+.allocation-adjust{display:grid;justify-items:center}
+.allocation-stepper{display:flex;align-items:center;gap:4px}
+.allocation-stepper strong{white-space:nowrap;margin:0}
+.allocation-stepper .icon-button{width:28px;height:32px}
+.allocation-stepper .icon-button svg{width:14px;height:14px}
