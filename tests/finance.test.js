@@ -120,3 +120,12 @@ test('Voucher state persists and resets do not silently allocate old credits aga
  setMealVouchers(s,'2026-11',60000);assert.equal(s.mealAllocations['2026-11'],10000);
  let raw;globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};saveState(s);assert.deepEqual(loadState().mealVouchers,s.mealVouchers);assert.deepEqual(loadState().mealAllocations,s.mealAllocations);
 });
+
+test('Total monthly income includes received vouchers once, independently of spending',async()=>{
+ const {monthlyIncome,setMealVouchers}=await import('../dist/finance.js');const s=initialState();s.transactions=structuredClone(rows);
+ setMealVouchers(s,'2026-11',60000);assert.deepEqual(monthlyIncome(s,'2026-11'),{cash:900000,vouchers:60000,total:960000});
+ setMealVouchers(s,'2026-11',70000);assert.equal(monthlyIncome(s,'2026-11').total,970000);
+ s.transactions.push({id:'meal',date:'2026-11-12',type:'expense',category:'cat-0',amount:20000,paymentSource:'meal'});
+ assert.equal(monthlyIncome(s,'2026-11').total,970000);assert.equal(summarize(inMonth(s.transactions,'2026-11')).balance,888700);
+ assert.equal(monthlyIncome(s,'2026-12').total,0);assert.equal(s.transactions.filter(t=>t.type==='income').length,1);
+});

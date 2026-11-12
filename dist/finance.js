@@ -82,3 +82,9 @@ export function resetCategoryBudget(state,month,id){
  for(const key of ids)if(state.categoryBudgets?.[month])delete state.categoryBudgets[month][key];
  if(ids.includes('cat-0')&&state.mealAllocations)state.mealAllocations[month]=0;
 }
+
+export function monthlyIncome(state,month){
+ const cash=inMonth(state.transactions,month).filter(t=>t.type==='income').reduce((sum,t)=>sum+t.amount,0);
+ const vouchers=state.mealVouchers?.[month]||0;
+ return {cash,vouchers,total:cash+vouchers};
+}
