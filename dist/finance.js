@@ -22,19 +22,19 @@ DEFAULT_CATEGORIES.push(
 export const money = n => new Intl.NumberFormat('ro-RO',{style:'currency',currency:'RON',minimumFractionDigits:2,maximumFractionDigits:2}).format(n/100);
 export const number = n => new Intl.NumberFormat('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n/100);
 export function parseMoney(raw){ const s=String(raw).trim(); if(!/^\d+(?:[.,]\d{1,2})?$/.test(s))throw Error('Introdu o sumă validă, cu cel mult două zecimale.'); const n=Math.round(Number(s.replace(',','.'))*100); if(!Number.isSafeInteger(n)||n>999999999999)throw Error('Suma este prea mare.');return n; }
-export function summarize(transactions,budget=0){const income=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0),expenses=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);return {income,expenses,balance:income-expenses,remaining:budget-expenses,used:budget?expenses*100/budget:0};}
+export function summarize(transactions,budget=0){const income=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0),expenses=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);const cashExpenses=transactions.filter(t=>t.type==='expense'&&t.paymentSource!=='meal').reduce((sum,t)=>sum+t.amount,0);return {income,expenses,balance:income-cashExpenses,remaining:budget-cashExpenses,used:budget?cashExpenses*100/budget:0};}
 export function inMonth(transactions,month){return transactions.filter(t=>t.date.startsWith(month));}
 export function breakdown(transactions,categories){return categories.map(c=>({...c,total:transactions.filter(t=>t.type==='expense'&&t.category===c.id).reduce((s,t)=>s+t.amount,0)})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);}
 export function dailyExpenses(transactions,month){const days=new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate();return Array.from({length:days},(_,i)=>({day:i+1,total:transactions.filter(t=>t.type==='expense'&&Number(t.date.slice(8))===i+1).reduce((s,t)=>s+t.amount,0)}));}
-export function csv(transactions,categories){const cell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};return '\uFEFF'+[['Denumire','Categorie','Dată','Tip','Sumă (RON)','Descriere'],...transactions.map(t=>[t.name,categoryLabel(categories.find(c=>c.id===t.category),categories),t.date,t.type==='income'?'Venit':'Cheltuială',(t.amount/100).toFixed(2).replace('.',','),t.description])].map(r=>r.map(cell).join(';')).join('\r\n');}
+export function csv(transactions,categories){const cell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};return '\uFEFF'+[['Denumire','Categorie','Dată','Tip','Sumă (RON)','Descriere','Sursă plată'],...transactions.map(t=>[t.name,categoryLabel(categories.find(c=>c.id===t.category),categories),t.date,t.type==='income'?'Venit':'Cheltuială',(t.amount/100).toFixed(2).replace('.',','),t.description,t.type==='income'?'Venit':t.paymentSource==='meal'?'Bonuri de masă':'Bani'])].map(r=>r.map(cell).join(';')).join('\r\n');}
 
-export function categoryBudgetSummary(transactions,categories,categoryBudgets,month){
+export function categoryBudgetSummary(transactions,categories,categoryBudgets,month,mealAllocated=0){
   const rows=inMonth(transactions,month);
   return categories.map(c=>{
     const ids=c.isGroup?[c.id,...categories.filter(child=>child.parentId===c.id).map(child=>child.id)]:[c.id];
-    const allocated=ids.reduce((sum,id)=>sum+(categoryBudgets?.[month]?.[id]||0),0);
+    const cashAllocated=ids.reduce((sum,id)=>sum+(categoryBudgets?.[month]?.[id]||0),0),mealAllocation=ids.includes('cat-0')?mealAllocated:0,allocated=cashAllocated+mealAllocation;
     const spent=rows.filter(t=>t.type==='expense'&&ids.includes(t.category)).reduce((sum,t)=>sum+t.amount,0);
-    return {...c,allocated,spent,remaining:allocated?allocated-spent:null,used:allocated?spent*100/allocated:0};
+    return {...c,cashAllocated,mealAllocation,allocated,spent,remaining:allocated?allocated-spent:null,used:allocated?spent*100/allocated:0};
   });
 }
 
@@ -55,3 +55,30 @@ export function allocationSummary(categories,categoryBudgets,month,total){
  return {total,allocated,unallocated:total-allocated};
 }
 export function categoryLabel(category,categories){const parent=categories.find(c=>c.id===category?.parentId);return parent?parent.name+' / '+category.name:category?.name||'Fără categorie';}
+
+export function mealSummary(state,month){
+ const received=state.mealVouchers?.[month]||0,allocated=state.mealAllocations?.[month]||0;
+ const spent=inMonth(state.transactions,month).filter(t=>t.type==='expense'&&t.paymentSource==='meal').reduce((sum,t)=>sum+t.amount,0);
+ return {received,allocated,spent,remaining:received-spent,unallocated:received-allocated};
+}
+export function setMealVouchers(state,month,amount){
+ if(!Number.isSafeInteger(amount)||amount<0)throw Error('Introdu o valoare validă pentru bonuri.');
+ const previous=mealSummary(state,month);
+ if(amount<previous.spent)throw Error('Totalul bonurilor nu poate fi mai mic decât suma deja cheltuită din bonuri.');
+ state.mealVouchers ??= {};state.mealAllocations ??= {};
+ state.mealVouchers[month]=amount;
+ // New credit is assigned only to food; existing manual resets stay respected.
+ state.mealAllocations[month]=Math.min(amount,Math.max(0,previous.allocated+amount-previous.received));
+}
+export function validateMealPayment(state,entry){
+ if(entry.paymentSource!=='meal')return;
+ if(entry.type!=='expense'||entry.category!=='cat-0')throw Error('Bonurile de masă se folosesc numai pentru cheltuieli la Cumpărături / Alimentație.');
+ const month=entry.date.slice(0,7),spent=state.transactions.filter(t=>t.id!==entry.id&&t.date.startsWith(month)&&t.type==='expense'&&t.paymentSource==='meal').reduce((sum,t)=>sum+t.amount,0);
+ if(spent+entry.amount>(state.mealVouchers?.[month]||0))throw Error('Sold insuficient în bonuri de masă pentru luna tranzacției.');
+}
+export function resetCategoryBudget(state,month,id){
+ const category=state.categories.find(c=>c.id===id);if(!category)throw Error('Categoria nu mai există.');
+ const ids=category.isGroup?[id,...state.categories.filter(c=>c.parentId===id).map(c=>c.id)]:[id];
+ for(const key of ids)if(state.categoryBudgets?.[month])delete state.categoryBudgets[month][key];
+ if(ids.includes('cat-0')&&state.mealAllocations)state.mealAllocations[month]=0;
+}

@@ -90,3 +90,33 @@ test('Regrouping preserves old direct group budgets and totals without double co
  const group=categoryBudgetSummary(loaded.transactions,loaded.categories,loaded.categoryBudgets,'2026-11').find(c=>c.id==='cat-3');assert.equal(group.allocated,25000);assert.equal(group.spent,11300);
  saveState(loaded);assert.equal(loadState().categories.length,loaded.categories.length);
 });
+
+test('Resetting a group clears monthly allocations only and preserves transactions and salary',async()=>{
+ const {resetCategoryBudget}=await import('../dist/finance.js');const s=initialState();s.transactions=structuredClone(rows);s.budgets['2026-11']=500000;
+ s.categoryBudgets={'2026-11':{'cat-3':10000,'cat-0':20000,'cat-shopping-misc':5000,'cat-4':8000},'2026-12':{'cat-0':9000}};
+ s.mealVouchers['2026-11']=40000;s.mealAllocations['2026-11']=40000;
+ resetCategoryBudget(s,'2026-11','cat-3');assert.deepEqual(s.categoryBudgets['2026-11'],{'cat-4':8000});assert.equal(s.mealAllocations['2026-11'],0);
+ assert.equal(s.mealVouchers['2026-11'],40000);assert.equal(s.categoryBudgets['2026-12']['cat-0'],9000);assert.deepEqual(s.transactions,rows);assert.equal(s.budgets['2026-11'],500000);
+ resetCategoryBudget(s,'2026-11','cat-4');assert.equal(s.categoryBudgets['2026-11']['cat-4'],undefined);
+});
+test('Voucher credit is food-only and does not reduce cash allocation balance',async()=>{
+ const {setMealVouchers,mealSummary,categoryBudgetSummary,allocationSummary}=await import('../dist/finance.js');const s=initialState();
+ s.categoryBudgets={'2026-11':{'cat-0':10000}};setMealVouchers(s,'2026-11',50000);
+ assert.deepEqual(mealSummary(s,'2026-11'),{received:50000,allocated:50000,spent:0,remaining:50000,unallocated:0});
+ const cats=categoryBudgetSummary(s.transactions,s.categories,s.categoryBudgets,'2026-11',50000);assert.equal(cats.find(c=>c.id==='cat-0').allocated,60000);assert.equal(cats.find(c=>c.id==='cat-3').allocated,60000);assert.equal(cats.find(c=>c.id==='cat-4').mealAllocation,0);
+ assert.equal(allocationSummary(s.categories,s.categoryBudgets,'2026-11',100000).unallocated,90000);
+ setMealVouchers(s,'2026-11',60000);assert.equal(s.mealAllocations['2026-11'],60000);assert.equal(s.transactions.length,0);
+});
+test('Voucher payments update their own balance and preserve salary balance',async()=>{
+ const {validateMealPayment,mealSummary,setMealVouchers}=await import('../dist/finance.js');const s=initialState();setMealVouchers(s,'2026-11',50000);
+ const expense={id:'meal1',name:'Prânz',date:'2026-11-12',type:'expense',amount:15000,category:'cat-0',paymentSource:'meal'};validateMealPayment(s,expense);s.transactions=[rows[0],expense];
+ const summary=summarize(s.transactions,900000);assert.equal(summary.expenses,15000);assert.equal(summary.balance,900000);assert.equal(summary.remaining,900000);assert.equal(mealSummary(s,'2026-11').remaining,35000);
+ assert.throws(()=>validateMealPayment(s,{...expense,id:'new',category:'cat-4'}));assert.throws(()=>validateMealPayment(s,{...expense,id:'new',amount:40000}));assert.throws(()=>validateMealPayment(s,{...expense,type:'income'}));
+ validateMealPayment(s,{...expense,amount:40000});assert.throws(()=>setMealVouchers(s,'2026-11',10000));
+ const out=csv([expense],s.categories);assert.ok(out.includes('Bonuri de masă'));
+});
+test('Voucher state persists and resets do not silently allocate old credits again',async()=>{
+ const {setMealVouchers,resetCategoryBudget}=await import('../dist/finance.js');const s=initialState();setMealVouchers(s,'2026-11',50000);resetCategoryBudget(s,'2026-11','cat-0');setMealVouchers(s,'2026-11',50000);assert.equal(s.mealAllocations['2026-11'],0);
+ setMealVouchers(s,'2026-11',60000);assert.equal(s.mealAllocations['2026-11'],10000);
+ let raw;globalThis.localStorage={getItem:()=>raw,setItem:(k,v)=>raw=v};saveState(s);assert.deepEqual(loadState().mealVouchers,s.mealVouchers);assert.deepEqual(loadState().mealAllocations,s.mealAllocations);
+});

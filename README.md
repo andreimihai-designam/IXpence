@@ -63,3 +63,9 @@ Inter: SIL Open Font License 1.1. Lucide: ISC License. Vezi `THIRD_PARTY_LICENSE
 Mașină (Motorină, Asigurare, ITP, Consumabile, Parcare, Reparații); Divertisment (Evenimente, Ieșiri); Economii (Călătorii, Apartament); Facturi (Abonamente, Contracte); Cumpărături (Alimentație, Diverse); Diverse (Sănătate, Alte cheltuieli); Datorii.
 
 Tranzacțiile și alocările vechi ale categoriilor devenite grupuri sunt păstrate sub identificatorii originali. În luna în care există sume directe pe grup, apare un card „Alocare anterioară”, pentru ajustare manuală. Aceste sume intră în total o singură dată. Tranzacțiile noi folosesc subcategoriile, iar filtrele pe grup includ subcategoriile și tranzacțiile anterioare.
+
+## Bonuri de masă și resetări
+
+Cardul Bonuri de masă păstrează un total lunar separat de salariu. Diferențele de credit sunt alocate doar la Alimentație; în formularul acestei subcategorii poți ajusta alocarea din bonuri. Nicio altă categorie nu poate primi sau cheltui bonuri. Tranzacțiile au sursa Bani sau Bonuri de masă; plățile mixte se introduc ca două tranzacții. Soldul și bugetul salarial scad doar cu plățile din bani, iar totalul cheltuielilor și graficele includ ambele surse. Nu există report automat între luni. Exportul CSV include sursa plății.
+
+Iconița de resetare din antet resetează alocările lunii selectate, fără să șteargă tranzacțiile. La un grup resetează toate subcategoriile și alocările vechi directe. La Alimentație sau Cumpărături se resetează și alocarea din bonuri; valoarea bonurilor primite și plățile rămân salvate, iar bonurile nealocate pot fi realocate numai la Alimentație.
