@@ -1,7 +1,7 @@
-import {DEFAULT_CATEGORIES} from './finance.js?v=features-20261113';
+import {DEFAULT_CATEGORIES} from './finance.js?v=planning-20261113';
 const KEY='jarvis-expencer-v1';
-export function initialState({legacyCategories=false}={}){return {version:1,transactions:[],categories:legacyCategories?structuredClone(DEFAULT_CATEGORIES):[],...(legacyCategories?{}:{localCategories:true}),budgets:{},categoryBudgets:{},favorites:[],mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
-export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.favorites ??= [];s.categoryBudgets ??= {};s.mealVouchers ??= {};s.mealAllocations ??= {};
+export function initialState({legacyCategories=false}={}){return {version:1,transactions:[],categories:legacyCategories?structuredClone(DEFAULT_CATEGORIES):[],...(legacyCategories?{}:{localCategories:true}),budgets:{},categoryBudgets:{},favorites:[],bills:[],goals:[],monthClosures:{},mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
+export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.favorites ??= [];s.bills ??= [];s.goals ??= [];s.monthClosures ??= {};s.categoryBudgets ??= {};s.mealVouchers ??= {};s.mealAllocations ??= {};
 const retiredIds=['cat-subscriptions','cat-contracts'];
 const deletedIds=new Set(s.deletedCategoryIds||[]);
 const invoiceId=deletedIds.has('cat-2')?'uncategorized':'cat-2';
@@ -28,7 +28,7 @@ const onlyStarterCategories=!s.localCategories&&deletedIds.size===0&&
   s.categories.some(category=>category.id===defaultCategory.id&&!category.custom&&!category.renamed&&
    category.name===defaultCategory.name&&category.parentId===defaultCategory.parentId&&
    Boolean(category.isGroup)===Boolean(defaultCategory.isGroup)));
-const hasFinancialData=s.transactions.length||[s.budgets,s.categoryBudgets,s.mealVouchers,s.mealAllocations]
+const hasFinancialData=s.transactions.length||s.bills.length||s.goals.length||Object.keys(s.monthClosures).length||[s.budgets,s.categoryBudgets,s.mealVouchers,s.mealAllocations]
  .some(values=>Object.keys(values).length);
 if(onlyStarterCategories&&!hasFinancialData){
  s.categories=[];
