@@ -1,7 +1,7 @@
-import {DEFAULT_CATEGORIES} from './finance.js?v=local-categories';
+import {DEFAULT_CATEGORIES} from './finance.js?v=features-20261113';
 const KEY='jarvis-expencer-v1';
-export function initialState({legacyCategories=false}={}){return {version:1,transactions:[],categories:legacyCategories?structuredClone(DEFAULT_CATEGORIES):[],...(legacyCategories?{}:{localCategories:true}),budgets:{},categoryBudgets:{},mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
-export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.categoryBudgets ??= {};s.mealVouchers ??= {};s.mealAllocations ??= {};
+export function initialState({legacyCategories=false}={}){return {version:1,transactions:[],categories:legacyCategories?structuredClone(DEFAULT_CATEGORIES):[],...(legacyCategories?{}:{localCategories:true}),budgets:{},categoryBudgets:{},favorites:[],mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
+export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.favorites ??= [];s.categoryBudgets ??= {};s.mealVouchers ??= {};s.mealAllocations ??= {};
 const retiredIds=['cat-subscriptions','cat-contracts'];
 const deletedIds=new Set(s.deletedCategoryIds||[]);
 const invoiceId=deletedIds.has('cat-2')?'uncategorized':'cat-2';

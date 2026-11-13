@@ -30,16 +30,18 @@ Deschide `http://localhost:8000`. Modulele JavaScript necesită HTTP; nu deschid
 
 Sumele sunt stocate în bani (numere întregi). „Economii” reprezintă o ieșire din buget în această versiune. Soldul este calculat pentru luna selectată; nu include sold reportat din alte luni. Graficele și cardurile reflectă luna, iar filtrele de categorie/tip/căutare se aplică tabelului și exportului său.
 
-Datele sunt specifice browserului, dispozitivului și adresei aplicației. Ștergerea datelor browserului elimină și tranzacțiile; exportă periodic CSV. Fișierul CSV este un export, nu există încă import sau sincronizare. Când salvarea eșuează, aplicația afișează o eroare și nu confirmă modificarea.
+Datele sunt specifice browserului, dispozitivului și adresei aplicației. Ștergerea datelor browserului elimină și tranzacțiile; descarcă periodic un backup JSON complet. CSV rămâne un export al tranzacțiilor, iar restaurarea se face din backup JSON. Nu există sincronizare automată între dispozitive. Când salvarea eșuează, aplicația afișează o eroare și nu confirmă modificarea.
 
 ## Structură
 
 - `dist/app.js` — interfață, rutare, formulare, grafice și evenimente.
 - `dist/finance.js` — calcule financiare, agregări și export.
 - `dist/storage.js` — persistență și date demo.
+- `dist/features.js` — copierea bugetelor, favorite, comparații, praguri de avertizare și validarea backupului.
 - `dist/styles.css` — design responsive și teme.
 - `dist/assets/` — Inter, Lucide și favicon, servite local.
 - `tests/finance.test.js` — teste de calcule, export și persistență.
+- `tests/features.test.js` — teste pentru cele cinci funcții noi și validarea fișierelor de backup.
 
 ## Verificare
 
@@ -80,10 +82,20 @@ Logoul de referință este reinterpretat în SVG transparent: monede, grafic asc
 
 Workflow-ul `.github/workflows/deploy-pages.yml` verifică aplicația și publică directorul `dist` la fiecare push pe `main`. În repository, GitHub Pages trebuie configurat cu Source: **GitHub Actions** (Settings → Pages). Toate modificările ulterioare se încarcă în același repository `andreimihai-designam/IXpense---Expense-Mangement`.
 
-Datele din browserul de pe adresa Sites nu se mută automat la adresa GitHub Pages. Sunt două origini diferite; exportă datele vechi în CSV înainte de schimbarea adresei. Versiunea curentă oferă export, nu import.
+Datele din browserul de pe adresa Sites nu se mută automat la adresa GitHub Pages. Sunt două origini diferite; descarcă un backup JSON din versiunea actualizată înainte de schimbarea adresei, apoi restaurează-l în Setări la noua adresă. CSV este doar export, nu este acceptat pentru restaurare.
 
 ## Adresa publicată
 
 Aplicație: https://andreimihai-designam.github.io/IXpense---Expense-Mangement/
 
 La redenumirea repository-ului se schimbă și calea proiectului GitHub Pages. Vechea cale `/IXpence/` nu este redirecționată automat. Actualizează bookmarkurile la adresa de mai sus.
+
+## Funcții pentru utilizare lunară
+
+- **Copiază luna trecută** în Categorii și Bugete: completează alocările lipsă din banii lunii anterioare. Opțiunea de înlocuire actualizează și alocările acelorași categorii deja configurate. Sunt ignorate categoriile șterse. Nu se copiază salariul, tranzacțiile sau bonurile de masă.
+- **Tranzacții favorite** în Dashboard și Tranzacții: steaua din tabel salvează/elimină un model; modelul deschide formularul cu datele precompletate și data din luna selectată. Poți salva un model și prin bifa din formular. Plata se înregistrează doar după confirmarea formularului, folosind validările obișnuite.
+- **Avertizări**: la minimum 80% din buget categoria este evidențiată în galben; la 100% sau peste, în roșu, cu mesaj explicit. Bugetul neconfigurat nu are prag procentual. Dashboardul include un rezumat al subcategoriilor care necesită atenție.
+- **Față de luna trecută** în Rapoarte: compară lunile calendaristice complete pentru categorii și totalurile grupurilor (aceste rânduri sunt marcate ca total grup și nu trebuie însumate cu subcategoriile). Sunt incluse plățile din bani și bonuri. Când luna anterioară are valoarea 0, diferența procentuală nu este afișată.
+- **Backup și restaurare** în Setări: JSON cu toate lunile, tranzacțiile, bugetele, categoriile, bonurile, favoritele și preferințele. Fișierul este validat înainte de orice schimbare; importul înlocuiește datele, nu le combină. Înainte de restaurare se descarcă automat și un backup al stării curente. Limita fișierului importat este 10 MB. Fișierele conțin date personale și se păstrează local, nu se trimit în GitHub.
+
+Verificare: 32 de teste automate și scenarii în browser pentru copiere cu/fără suprascriere, favorite, avertizări, comparație, export, respingerea fișierelor invalide, restaurare într-un context nou de browser și persistență după reîncărcare.
