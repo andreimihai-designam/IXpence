@@ -112,4 +112,6 @@ Backupul JSON include facturile, obiectivele, asocierile tranzacțiilor și toat
 
 ## Dashboard simplificat
 
-Dashboardul afișează doar Buget rămas, Bonuri de masă, distribuția cheltuielilor „Unde se duc banii” și Tranzacții recente (cu căutare, filtre și export). Veniturile, soldul, cheltuielile totale și graficul evoluției rămân în Rapoarte; favoritele sunt în Tranzacții, iar facturile și obiectivele sunt accesibile din Bugete. Aceasta este o modificare de afișare; datele și calculele nu sunt modificate.
+Dashboardul afișează Sold disponibil în bani (venituri în bani minus plăți din bani), Bonuri de masă și Tranzacții recente. Sub tabel apar numai categoriile principale sub formă de bare colorate: disponibil din alocat, pentru luna selectată. La grupuri sunt însumate alocările și cheltuielile directe și ale subcategoriilor, inclusiv bonurile alocate la Alimentație. Bara reprezintă procentul încă disponibil și scade odată cu plățile; depășirile rămân afișate ca sume negative, cu bara la 0. Culorile barelor diferențiază categoriile și nu modifică datele salvate.
+
+Graficul „Unde se duc banii”, ceilalți indicatori și evoluția cheltuielilor sunt disponibile în Rapoarte. Favoritele rămân în Tranzacții; facturile și obiectivele în Bugete. Calculele și datele financiare existente sunt păstrate.
