@@ -52,7 +52,7 @@ npm test
 
 ## Repository
 
-Repository canonic: `andreimihai-designam/IXpence`. Toate modificările ulterioare se păstrează în același repository. Nu include date financiare personale în Git.
+Repository canonic: `andreimihai-designam/IXpense---Expense-Mangement`. Toate modificările ulterioare se păstrează în același repository. Nu include date financiare personale în Git.
 
 ## Licențe terțe
 
@@ -78,6 +78,12 @@ Logoul de referință este reinterpretat în SVG transparent: monede, grafic asc
 
 ## GitHub Pages
 
-Workflow-ul `.github/workflows/deploy-pages.yml` verifică aplicația și publică directorul `dist` la fiecare push pe `main`. În repository, GitHub Pages trebuie configurat cu Source: **GitHub Actions** (Settings → Pages). Toate modificările ulterioare se încarcă în același repository `andreimihai-designam/IXpence`.
+Workflow-ul `.github/workflows/deploy-pages.yml` verifică aplicația și publică directorul `dist` la fiecare push pe `main`. În repository, GitHub Pages trebuie configurat cu Source: **GitHub Actions** (Settings → Pages). Toate modificările ulterioare se încarcă în același repository `andreimihai-designam/IXpense---Expense-Mangement`.
 
 Datele din browserul de pe adresa Sites nu se mută automat la adresa GitHub Pages. Sunt două origini diferite; exportă datele vechi în CSV înainte de schimbarea adresei. Versiunea curentă oferă export, nu import.
+
+## Adresa publicată
+
+Aplicație: https://andreimihai-designam.github.io/IXpense---Expense-Mangement/
+
+La redenumirea repository-ului se schimbă și calea proiectului GitHub Pages. Vechea cale `/IXpence/` nu este redirecționată automat. Actualizează bookmarkurile la adresa de mai sus.

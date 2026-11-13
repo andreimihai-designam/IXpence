@@ -1,6 +1,6 @@
 # IXpence
 
-Canonical GitHub repository: https://github.com/andreimihai-designam/IXpence
+Canonical GitHub repository: https://github.com/andreimihai-designam/IXpense---Expense-Mangement
 
 The user requests that every future application change also be committed and pushed to this same repository. Do not create replacement repositories for subsequent changes. Preserve origin as the canonical GitHub repository and preserve the existing Sites remote and identity in .openai/hosting.json.
 
