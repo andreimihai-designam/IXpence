@@ -109,3 +109,7 @@ Verificare: 32 de teste automate și scenarii în browser pentru copiere cu/făr
 **Rapoarte → Închiderea lunii** salvează un rezumat cu veniturile în bani și bonuri, cheltuielile pe surse, soldurile rămase, numărul tranzacțiilor și sumele puse deoparte. Economiile includ contribuții la obiective și ieșiri în categoria Economii/subcategoriile sale, numărate o singură dată. Sunt deja incluse în cheltuieli, deci nu se scad din nou din sold. Închiderea nu blochează editările și nu reportează automat solduri. Dacă valorile lunii se schimbă după închidere, apare un avertisment; „Recalculează închiderea” salvează noul rezumat, iar „Redeschide” elimină doar rezumatul salvat.
 
 Backupul JSON include facturile, obiectivele, asocierile tranzacțiilor și toate rezumatele de închidere. Backupurile anterioare fără aceste câmpuri rămân compatibile. Testele suplimentare sunt în `tests/planning.test.js`; logica este separată în `dist/planning.js`.
+
+## Dashboard simplificat
+
+Dashboardul afișează doar Buget rămas, Bonuri de masă, distribuția cheltuielilor „Unde se duc banii” și Tranzacții recente (cu căutare, filtre și export). Veniturile, soldul, cheltuielile totale și graficul evoluției rămân în Rapoarte; favoritele sunt în Tranzacții, iar facturile și obiectivele sunt accesibile din Bugete. Aceasta este o modificare de afișare; datele și calculele nu sunt modificate.
