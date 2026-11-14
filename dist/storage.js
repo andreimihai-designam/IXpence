@@ -1,4 +1,4 @@
-import {DEFAULT_CATEGORIES} from './finance.js?v=spent-bars-20261114';
+import {DEFAULT_CATEGORIES} from './finance.js?v=single-balance-20261114';
 const KEY='jarvis-expencer-v1';
 export function initialState({legacyCategories=false}={}){return {version:1,transactions:[],categories:legacyCategories?structuredClone(DEFAULT_CATEGORIES):[],...(legacyCategories?{}:{localCategories:true}),budgets:{},categoryBudgets:{},favorites:[],bills:[],goals:[],monthClosures:{},mealVouchers:{},mealAllocations:{},theme:'dark',collapsed:false};}
 export function loadState(){const raw=localStorage.getItem(KEY);if(!raw)return initialState();const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.transactions)||!Array.isArray(s.categories)||!s.budgets)throw Error('Datele salvate nu pot fi citite.');s.favorites ??= [];s.bills ??= [];s.goals ??= [];s.monthClosures ??= {};s.categoryBudgets ??= {};s.mealVouchers ??= {};s.mealAllocations ??= {};
