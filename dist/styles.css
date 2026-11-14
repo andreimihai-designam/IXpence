@@ -52,13 +52,4 @@
 
 .indicator-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;max-width:100%;flex-wrap:wrap}.indicator-total-value{font-size:14pt!important;font-weight:500;line-height:1.4;font-variant-numeric:tabular-nums}.dashboard-balance-card{position:relative}.dashboard-balance-card .meal-balance-edit{position:absolute;top:auto;right:24px;bottom:24px;height:25%;width:auto;aspect-ratio:1;min-height:0;padding:0;display:grid;place-items:center;transform:none;color:var(--voucher-accent);text-decoration:none}.dashboard-balance-card .meal-balance-edit svg{width:100%;height:100%;stroke-width:1.35}.income-layout-dominant .voucher-income{padding-right:70px}.car-segment-legend{gap:10px}.car-segment-label{min-height:44px}.calendar-bill-count{font-weight:600}.calendar-day{overflow-wrap:anywhere}.chart-summary,.metric-bottom,.table-footer{flex-wrap:wrap;row-gap:7px}.category-legend{gap:14px}@media(max-width:650px){.income-layout-dominant .voucher-income{padding-right:88px}.dashboard-balance-card .meal-balance-edit{right:20px;bottom:22px}.car-segment-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.category-balance-label{gap:8px}.indicator-head-actions{gap:7px}#sidebar nav a{min-width:0;padding-left:2px!important;padding-right:2px!important}#sidebar nav a>span{max-width:100%;overflow-wrap:anywhere;text-align:center;line-height:1.15}.calendar-day{padding:5px;min-height:54px}.calendar-bill-count{font-size:10pt;line-height:1.1}.planning-tabs .button{line-height:1.4}.panel-head{flex-wrap:wrap}}
 
-/* Light theme: consistent black text and dark filled controls. */
-[data-theme=light]{--text:#000;--muted:#000;--subtle:#000;--voucher-accent:#000}
-[data-theme=light] body *{color:#000!important}
-[data-theme=light] body .text-button,[data-theme=light] body .text-button *{background:#121419!important;color:#fff!important}
-[data-theme=light] a.text-button{padding:8px 12px;border-radius:6px}
-[data-theme=light] input::placeholder,[data-theme=light] textarea::placeholder{color:#000;opacity:1}
-[data-theme=light] button,[data-theme=light] .button{background:#121419!important;color:#fff!important;border-color:#121419!important}
-[data-theme=light] button *,[data-theme=light] .button *{color:#fff!important}
-[data-theme=light] button:hover,[data-theme=light] .button:hover{background:#121419!important;filter:brightness(1.18)}
-[data-theme=light] button:focus-visible,[data-theme=light] .button:focus-visible{outline-color:#121419}
+.category-balance-label>.indicator-category-summary{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-start;gap:8px}.indicator-category-summary .indicator-total-value{flex-shrink:0}.indicator-category-summary .indicator-separator{font-size:14pt;font-weight:400}

@@ -142,4 +142,4 @@ Legenda afișează numele și soldul rămas și permite deschiderea formularului
 
 Textele care aveau dimensiuni sub 10 pt sunt mărite la minimum 10 pt, inclusiv pe mobil, în tabele, legende și formulare. Valorile totale ale celor trei bare sunt deasupra barelor, la 14 pt, iar interiorul rămâne dedicat progresului colorat. Editarea bonurilor folosește un creion, dimensionat la 25% din înălțimea casetei financiare, fără textul „Actualizează”.
 
-Tema deschisă folosește texte negre și butoane cu fundal #121419 și text alb.
+Tema deschisă păstrează paleta inițială. Sumele indicatorilor sunt afișate în stânga, lângă denumirea categoriei.
