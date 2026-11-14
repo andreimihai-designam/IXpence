@@ -121,3 +121,5 @@ Selectorul de perioadă este un afișaj text centrat, cu luna în majuscule la 2
 Dashboardul folosește o singură casetă: soldul în bani este centrat, iar salariul și bonurile primite sunt afișate pe două rânduri în stânga, fără editare în casetă. Pentru rândul Salariu se folosește salariul înregistrat în luna selectată (asociat bugetului sau numit Salariu); în absența lui, se afișează bugetul lunar configurat. Barele au 30 px pe desktop și 15 px la maximum 650 px. Denumirile categoriilor sunt 14 pt / 10 pt. Textul lateral „Alocat” este eliminat; suma rămasă rămâne în bară, iar alocarea completă este disponibilă în descrierea accesibilă.
 
 În caseta de sus, titlul „Sold disponibil” rămâne centrat, iar suma centrală a fost eliminată. Rândurile „Salariu” și „Bonuri” afișează valorile cu cifre mari și moneda RON mică, aliniată pe aceeași linie.
+
+Caseta „Sold disponibil” folosește layoutul ales, varianta 3: salariul dominant în partea stângă (două treimi), bonurile în dreapta cu separator vertical. Eticheta și suma bonurilor au aceeași nuanță turcoaz, adaptată și pentru tema luminoasă. Pe mobil zonele se așază vertical, cu separator orizontal.
