@@ -112,6 +112,8 @@ Backupul JSON include facturile, obiectivele, asocierile tranzacțiilor și toat
 
 ## Dashboard simplificat
 
-Dashboardul afișează Sold disponibil în bani (venituri în bani minus plăți din bani), Bonuri de masă și Tranzacții recente. Sub tabel apar numai categoriile principale sub formă de bare colorate: disponibil din alocat, pentru luna selectată. La grupuri sunt însumate alocările și cheltuielile directe și ale subcategoriilor, inclusiv bonurile alocate la Alimentație. Bara reprezintă procentul încă disponibil și scade odată cu plățile; depășirile rămân afișate ca sume negative, cu bara la 0. Culorile barelor diferențiază categoriile și nu modifică datele salvate.
+Dashboardul afișează Sold disponibil în bani (venituri în bani minus plăți din bani), Bonuri de masă și Tranzacții recente. Sub tabel apar numai categoriile principale sub formă de bare colorate: disponibil din alocat, pentru luna selectată. La grupuri sunt însumate alocările și cheltuielile directe și ale subcategoriilor, inclusiv bonurile alocate la Alimentație. Partea colorată a barei reprezintă cât s-a cheltuit, iar în interior este afișată suma încă disponibilă în RON; depășirile rămân afișate ca sume negative, cu bara complet colorată. Culorile barelor diferențiază categoriile și nu modifică datele salvate.
 
 Graficul „Unde se duc banii”, ceilalți indicatori și evoluția cheltuielilor sunt disponibile în Rapoarte. Favoritele rămân în Tranzacții; facturile și obiectivele în Bugete. Calculele și datele financiare existente sunt păstrate.
+
+Selectorul de perioadă este un afișaj text centrat, cu luna în majuscule la 20 pt și anul la 14 pt; săgețile schimbă luna și actualizează toate datele. Butonul global de adăugare a tranzacției a fost mutat în secțiunea Tranzacții recente / Tranzacții. Dashboardul nu mai afișează titlul barelor și textele introductive din tabelul gol.

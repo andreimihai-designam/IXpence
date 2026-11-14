@@ -148,6 +148,6 @@ test('Dashboard shows root balances with grouped spending, vouchers and clamped 
  const categories=[{id:'shopping',name:'Cumpărături',isGroup:true},{id:'cat-0',name:'Alimentație',parentId:'shopping'},{id:'other',name:'Diverse'}];
  const budgets={'2026-11':{shopping:10000,'cat-0':20000,other:5000}};
  const rows=[{type:'expense',category:'shopping',amount:1000,date:'2026-11-01'},{type:'expense',category:'cat-0',amount:6000,date:'2026-11-02'},{type:'expense',category:'other',amount:7000,date:'2026-11-03'},{type:'expense',category:'cat-0',amount:99999,date:'2026-10-03'}];
- const result=mainCategoryBalances(rows,categories,budgets,'2026-11',10000);assert.equal(result.length,2);assert.equal(result[0].allocated,40000);assert.equal(result[0].spent,7000);assert.equal(result[0].available,33000);assert.equal(result[0].percentAvailable,82.5);assert.equal(result[1].available,-2000);assert.equal(result[1].percentAvailable,0);
+ const result=mainCategoryBalances(rows,categories,budgets,'2026-11',10000);assert.equal(result.length,2);assert.equal(result[0].allocated,40000);assert.equal(result[0].spent,7000);assert.equal(result[0].available,33000);assert.equal(result[0].percentAvailable,82.5);assert.equal(result[0].percentSpent,17.5);assert.equal(result[1].available,-2000);assert.equal(result[1].percentAvailable,0);assert.equal(result[1].percentSpent,100);
  assert.equal(mainCategoryBalances([],categories,{},'2026-11')[0].percentAvailable,0);
 });

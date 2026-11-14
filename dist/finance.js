@@ -96,5 +96,5 @@ export function monthlyIncome(state,month){
 export function mainCategoryBalances(transactions,categories,categoryBudgets,month,mealAllocated=0){
  return categoryBudgetSummary(transactions,categories,categoryBudgets,month,mealAllocated)
   .filter(c=>!c.parentId)
-  .map(c=>({...c,available:c.allocated-c.spent,percentAvailable:c.allocated?Math.max(0,Math.min(100,(c.allocated-c.spent)*100/c.allocated)):0}));
+  .map(c=>({...c,available:c.allocated-c.spent,percentAvailable:c.allocated?Math.max(0,Math.min(100,(c.allocated-c.spent)*100/c.allocated)):0,percentSpent:c.allocated?Math.max(0,Math.min(100,c.spent*100/c.allocated)):c.spent>0?100:0}));
 }
