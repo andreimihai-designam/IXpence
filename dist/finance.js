@@ -119,3 +119,31 @@ export function setMealBalance(state,month,remaining){
  if(!Number.isSafeInteger(total)||total>999999999999)throw Error('Valoarea bonurilor este prea mare.');
  setMealVouchers(state,month,total);
 }
+
+export const CAR_SEGMENTS=[
+ {key:'insurance',name:'Asigurare',color:'#33658a',aliases:['asigurare'],legacyId:'cat-car-0'},
+ {key:'itp',name:'ITP',color:'#86bbd8',aliases:['itp'],legacyId:'cat-car-1'},
+ {key:'fuel',name:'Motorină',color:'#758e4f',aliases:['motorina','motiruna'],legacyId:'cat-1'},
+ {key:'service',name:'Revizie',color:'#f6ae2d',aliases:['revizie']},
+ {key:'consumables',name:'Consumabile',color:'#f26419',aliases:['consumabile'],legacyId:'cat-car-2'},
+ {key:'repairs',name:'Reparații',color:'#f26419',aliases:['reparatii'],legacyId:'cat-car-4'},
+ {key:'parking',name:'Parcări',color:'#F2C12E',aliases:['parcari','parcare'],legacyId:'cat-car-3'}
+];
+const normalizedCategoryName=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+function carRoot(state){return state.categories.find(c=>!c.parentId&&normalizedCategoryName(c.name)==='masina')||state.categories.find(c=>!c.parentId&&c.id==='cat-car');}
+function matchingCarChild(state,root,slot){if(!root)return null;const children=state.categories.filter(c=>c.parentId===root.id);return children.find(c=>slot.aliases.some(alias=>normalizedCategoryName(c.name)===alias||normalizedCategoryName(c.name).startsWith(alias+' ')))||children.find(c=>c.id===slot.legacyId)||null;}
+export function carBudgetSegments(state,month){
+ const root=carRoot(state),rows=inMonth(state.transactions,month);
+ const segments=CAR_SEGMENTS.map(slot=>{
+  const child=matchingCarChild(state,root,slot),allocated=child?(state.categoryBudgets?.[month]?.[child.id]||0):0,spent=child?rows.filter(t=>t.type==='expense'&&t.category===child.id).reduce((sum,t)=>sum+t.amount,0):0,available=allocated-spent;
+  return {...slot,categoryId:child?.id||null,allocated,spent,available,percent:allocated?Math.max(0,Math.min(100,available*100/allocated)):0};
+ });
+ const mapped=new Set(segments.map(s=>s.categoryId).filter(Boolean)),otherIds=root?[root.id,...state.categories.filter(c=>c.parentId===root.id&&!mapped.has(c.id)).map(c=>c.id)]:[];
+ const otherAllocated=otherIds.reduce((sum,id)=>sum+(state.categoryBudgets?.[month]?.[id]||0),0),otherSpent=rows.filter(t=>t.type==='expense'&&otherIds.includes(t.category)).reduce((sum,t)=>sum+t.amount,0);
+ return {rootId:root?.id||null,segments,otherAllocated,otherSpent};
+}
+export function ensureCarSegment(state,key){
+ const slot=CAR_SEGMENTS.find(s=>s.key===key);if(!slot)throw Error('Subcategoria mașinii nu este validă.');
+ let root=carRoot(state);if(!root){root={id:crypto.randomUUID(),name:'Mașină',isGroup:true,custom:true,color:'#a78bfa',icon:'car'};state.categories.push(root);}root.isGroup=true;
+ let child=matchingCarChild(state,root,slot);if(!child){child={id:crypto.randomUUID(),name:slot.name,parentId:root.id,custom:true,color:slot.color,icon:slot.key==='fuel'?'fuel':'wrench'};state.categories.push(child);}return child.id;
+}
