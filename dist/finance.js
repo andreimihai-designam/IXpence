@@ -98,3 +98,17 @@ export function mainCategoryBalances(transactions,categories,categoryBudgets,mon
   .filter(c=>!c.parentId)
   .map(c=>({...c,available:c.allocated-c.spent,percentAvailable:c.allocated?Math.max(0,Math.min(100,(c.allocated-c.spent)*100/c.allocated)):0,percentSpent:c.allocated?Math.max(0,Math.min(100,c.spent*100/c.allocated)):c.spent>0?100:0}));
 }
+
+export function dashboardFocusIndicators(state,month){
+ const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const roots=categoryBudgetSummary(state.transactions,state.categories,state.categoryBudgets,month).filter(c=>!c.parentId);
+ const find=(name,id)=>roots.find(c=>normalize(c.name)===name)||roots.find(c=>c.id===id);
+ const savings=find('economii','cat-7'),car=find('masina','cat-car'),debt=find('datorii','cat-4'),targets=state.indicatorTargets?.[month]||{};
+ const savingsValue=savings?.allocated||0,savingsTarget=targets.savings||0,debtPaid=debt?.spent||0,debtTotal=targets.debt??debt?.allocated??0;
+ const percent=(value,total)=>total?Math.max(0,Math.min(100,value*100/total)):0;
+ return [
+  {key:'savings',name:'Economii',color:'#34d399',amount:savingsValue,total:savingsTarget,percent:percent(savingsValue,savingsTarget),label:'Alocat pentru economii',categoryId:savings?.id||null,configured:savingsTarget>0},
+  {key:'car',name:'Mașină',color:'#a78bfa',amount:(car?.allocated||0)-(car?.spent||0),total:car?.allocated||0,percent:percent((car?.allocated||0)-(car?.spent||0),car?.allocated||0),label:'Disponibil pentru mașină',categoryId:car?.id||null,configured:!!car?.allocated},
+  {key:'debt',name:'Datorii',color:'#f59e0b',amount:Math.max(0,debtTotal-debtPaid),total:debtTotal,percent:percent(Math.max(0,debtTotal-debtPaid),debtTotal),label:'Rămas de plată',categoryId:debt?.id||null,configured:debtTotal>0}
+ ];
+}

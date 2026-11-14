@@ -1,4 +1,4 @@
-import {inMonth,categoryLabel} from './finance.js?v=dominant-layout-20261114';
+import {inMonth,categoryLabel} from './finance.js?v=focus-indicators-20261114';
 
 export function previousMonth(month){
  const [year,m]=month.split('-').map(Number);return `${m===1?year-1:year}-${String(m===1?12:m-1).padStart(2,'0')}`;
@@ -55,6 +55,7 @@ export function parseBackup(text){
  const result={version:1,localCategories:true,categories,transactions,budgets:budgets(d.budgets),categoryBudgets:budgets(d.categoryBudgets,true),mealVouchers:budgets(d.mealVouchers),mealAllocations:budgets(d.mealAllocations),favorites,theme:d.theme==='light'?'light':'dark',collapsed:!!d.collapsed};
  if(d.deletedCategoryIds!==undefined){if(!Array.isArray(d.deletedCategoryIds)||!d.deletedCategoryIds.every(id))fail();result.deletedCategoryIds=[...new Set(d.deletedCategoryIds)];}
  for(const [m,n] of Object.entries(result.mealAllocations))if(n>(result.mealVouchers[m]||0))fail();
+ result.indicatorTargets=budgets(d.indicatorTargets,true);for(const values of Object.values(result.indicatorTargets))if(Object.keys(values).some(key=>!['savings','debt'].includes(key)))fail();
  const salaries=transactions.filter(t=>t.salaryMonth).map(t=>t.salaryMonth);if(new Set(salaries).size!==salaries.length)fail();
  const list=(value,validate)=>{if(value===undefined)return [];if(!Array.isArray(value)||value.length>10000)fail();const rows=value.map(validate);if(new Set(rows.map(x=>x.id)).size!==rows.length)fail();return rows;};
  result.bills=list(d.bills,b=>{if(!object(b)||!id(b.id)||!str(b.name,100)||!b.name.trim()||!amount(b.amount)||!b.amount||!date(b.dueDate)||!id(b.category)||(b.transactionId!==null&&b.transactionId!==undefined&&!id(b.transactionId)))fail();return {id:b.id,name:b.name,amount:b.amount,dueDate:b.dueDate,category:b.category,transactionId:b.transactionId||null};});

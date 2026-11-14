@@ -123,3 +123,9 @@ Dashboardul folosește o singură casetă: soldul în bani este centrat, iar sal
 În caseta de sus, titlul „Sold disponibil” rămâne centrat, iar suma centrală a fost eliminată. Rândurile „Salariu” și „Bonuri” afișează valorile cu cifre mari și moneda RON mică, aliniată pe aceeași linie.
 
 Caseta „Sold disponibil” folosește layoutul ales, varianta 3: salariul dominant în partea stângă (două treimi), bonurile în dreapta cu separator vertical. Eticheta și suma bonurilor au aceeași nuanță turcoaz, adaptată și pentru tema luminoasă. Pe mobil zonele se așază vertical, cu separator orizontal.
+
+## Indicatorii selectați pe dashboard
+
+Pe dashboard sunt afișate doar Economii (#34d399), Mașină (#a78bfa), Datorii (#f59e0b), în această ordine. Categoriile sunt identificate după nume (cu/fără diacritice) sau după ID-urile implicite. Restul rămân în secțiunea Categorii și în rapoarte.
+
+Economii arată suma alocată în luna selectată; bara crește spre o țintă lunară introdusă de utilizator prin iconița de configurare. Alocările de buget nu sunt confundate cu contribuțiile înregistrate în Obiective. Mașină arată restul din alocările categoriei și subcategoriilor, iar bara scade pe măsură ce se cheltuiește. Datorii afișează totalul de plată configurat minus cheltuielile din categoria/subcategoriile Datorii în luna selectată, cu minimum 0; fără un total personalizat se folosește alocarea lunii. Nu există report automat al datoriilor între luni. Țintele sunt locale, incluse în backup și nu creează tranzacții.

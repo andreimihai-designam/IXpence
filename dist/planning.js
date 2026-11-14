@@ -1,4 +1,4 @@
-import {inMonth,summarize,monthlyIncome,mealSummary} from './finance.js?v=dominant-layout-20261114';
+import {inMonth,summarize,monthlyIncome,mealSummary} from './finance.js?v=focus-indicators-20261114';
 const validAmount=n=>Number.isSafeInteger(n)&&n>0&&n<=999999999999;
 const validDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&s>='1900-01-01'&&s<='9999-12-31'&&!Number.isNaN(Date.parse(s+'T12:00:00Z'))&&new Date(s+'T12:00:00Z').toISOString().slice(0,10)===s;
 export function billPayment(state,bill){return state.transactions.find(t=>t.id===bill.transactionId&&t.type==='expense')||null;}

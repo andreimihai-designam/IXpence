@@ -151,3 +151,13 @@ test('Dashboard shows root balances with grouped spending, vouchers and clamped 
  const result=mainCategoryBalances(rows,categories,budgets,'2026-11',10000);assert.equal(result.length,2);assert.equal(result[0].allocated,40000);assert.equal(result[0].spent,7000);assert.equal(result[0].available,33000);assert.equal(result[0].percentAvailable,82.5);assert.equal(result[0].percentSpent,17.5);assert.equal(result[1].available,-2000);assert.equal(result[1].percentAvailable,0);assert.equal(result[1].percentSpent,100);
  assert.equal(mainCategoryBalances([],categories,{},'2026-11')[0].percentAvailable,0);
 });
+
+test('Focus indicators use exact order/colors with three distinct progress meanings',async()=>{
+ const {dashboardFocusIndicators}=await import('../dist/finance.js');
+ const state={categories:[{id:'car',name:'Masina',isGroup:true},{id:'fuel',name:'Motorina',parentId:'car'},{id:'s',name:'Economii'},{id:'d',name:'Datorii'},{id:'x',name:'Cumpărături'}],transactions:[{type:'expense',category:'fuel',amount:25000,date:'2026-11-01'},{type:'expense',category:'d',amount:10000,date:'2026-11-02'},{type:'expense',category:'d',amount:99999,date:'2026-10-02'}],categoryBudgets:{'2026-11':{fuel:100000,s:20000,d:45000,x:80000}},indicatorTargets:{'2026-11':{savings:100000,debt:60000}}};
+ const before=structuredClone(state),rows=dashboardFocusIndicators(state,'2026-11');assert.deepEqual(rows.map(r=>r.name),['Economii','Mașină','Datorii']);assert.deepEqual(rows.map(r=>r.color),['#34d399','#a78bfa','#f59e0b']);assert.equal(rows[0].percent,20);assert.equal(rows[0].amount,20000);assert.equal(rows[1].amount,75000);assert.equal(rows[1].percent,75);assert.equal(rows[2].amount,50000);assert.deepEqual(state,before);
+ state.categoryBudgets['2026-11'].s=50000;assert.equal(dashboardFocusIndicators(state,'2026-11')[0].percent,50);delete state.indicatorTargets['2026-11'].debt;assert.equal(dashboardFocusIndicators(state,'2026-11')[2].amount,35000);
+});
+test('Focus indicators handle unconfigured targets and complete repayment without NaN',async()=>{
+ const {dashboardFocusIndicators}=await import('../dist/finance.js');const state={categories:[],transactions:[],categoryBudgets:{}};assert.deepEqual(dashboardFocusIndicators(state,'2026-11').map(r=>r.percent),[0,0,0]);state.categories=[{id:'cat-4',name:'Datorii'}];state.indicatorTargets={'2026-11':{debt:10000}};state.transactions=[{category:'cat-4',type:'expense',amount:15000,date:'2026-11-03'}];assert.equal(dashboardFocusIndicators(state,'2026-11')[2].amount,0);assert.equal(dashboardFocusIndicators(state,'2026-11')[2].percent,0);
+});
