@@ -112,3 +112,10 @@ export function dashboardFocusIndicators(state,month){
   {key:'debt',name:'Datorii',color:'#f59e0b',amount:Math.max(0,debtTotal-debtPaid),total:debtTotal,percent:percent(Math.max(0,debtTotal-debtPaid),debtTotal),label:'Rămas de plată',categoryId:debt?.id||null,configured:debtTotal>0}
  ];
 }
+
+export function setMealBalance(state,month,remaining){
+ if(!Number.isSafeInteger(remaining)||remaining<0)throw Error('Introdu un sold valid, mai mare sau egal cu zero.');
+ const spent=mealSummary(state,month).spent,total=spent+remaining;
+ if(!Number.isSafeInteger(total)||total>999999999999)throw Error('Valoarea bonurilor este prea mare.');
+ setMealVouchers(state,month,total);
+}

@@ -161,3 +161,8 @@ test('Focus indicators use exact order/colors with three distinct progress meani
 test('Focus indicators handle unconfigured targets and complete repayment without NaN',async()=>{
  const {dashboardFocusIndicators}=await import('../dist/finance.js');const state={categories:[],transactions:[],categoryBudgets:{}};assert.deepEqual(dashboardFocusIndicators(state,'2026-11').map(r=>r.percent),[0,0,0]);state.categories=[{id:'cat-4',name:'Datorii'}];state.indicatorTargets={'2026-11':{debt:10000}};state.transactions=[{category:'cat-4',type:'expense',amount:15000,date:'2026-11-03'}];assert.equal(dashboardFocusIndicators(state,'2026-11')[2].amount,0);assert.equal(dashboardFocusIndicators(state,'2026-11')[2].percent,0);
 });
+
+test('Voucher balance correction preserves recorded spending, salary and other months',async()=>{
+ const {setMealBalance,mealSummary}=await import('../dist/finance.js');const s={categories:[{id:'cat-0',name:'Alimentație'}],transactions:[{id:'meal',category:'cat-0',type:'expense',paymentSource:'meal',amount:10000,date:'2026-11-01'}],mealVouchers:{'2026-11':80000,'2026-10':60000},mealAllocations:{'2026-11':80000},budgets:{'2026-11':500000}};
+ const transactions=structuredClone(s.transactions);setMealBalance(s,'2026-11',50000);assert.equal(mealSummary(s,'2026-11').remaining,50000);assert.equal(s.mealVouchers['2026-11'],60000);assert.deepEqual(s.transactions,transactions);assert.equal(s.budgets['2026-11'],500000);assert.equal(s.mealVouchers['2026-10'],60000);setMealBalance(s,'2026-11',0);assert.equal(s.mealVouchers['2026-11'],10000);assert.equal(mealSummary(s,'2026-11').remaining,0);assert.throws(()=>setMealBalance(s,'2026-11',-1));
+});
