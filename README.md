@@ -137,3 +137,9 @@ Economii arată suma alocată în luna selectată; bara crește spre o țintă l
 Bara Mașină are șapte zone egale și independente, în ordine: Asigurare (#33658a), ITP (#86bbd8), Motorină (#758e4f), Revizie (#f6ae2d), Consumabile (#f26419), Reparații (#f26419), Parcări (#F2C12E). O zonă fără buget este goală. După alocare este plină; cheltuielile din acea subcategorie reduc numai umplerea acelei zone, proporțional cu soldul rămas / alocare. La depășire, zona rămâne goală și valoarea negativă este păstrată în legendă.
 
 Legenda afișează numele și soldul rămas și permite deschiderea formularului de buget. Subcategoriile existente sunt reutilizate, inclusiv denumirile Motorina/Parcare; o subcategorie lipsă este creată doar la apăsarea ei în legendă, fără sume implicite. Bugetele directe pe grup sau pe alte subcategorii nu sunt redistribuite automat și rămân în totalul Mașină, cu o explicație separată. Suma centrală este totalul disponibil al grupului, fără dublarea subcategoriilor.
+
+## Lizibilitate
+
+Textele care aveau dimensiuni sub 10 pt sunt mărite la minimum 10 pt, inclusiv pe mobil, în tabele, legende și formulare. Valorile totale ale celor trei bare sunt deasupra barelor, la 14 pt, iar interiorul rămâne dedicat progresului colorat. Editarea bonurilor folosește un creion, dimensionat la 25% din înălțimea casetei financiare, fără textul „Actualizează”.
+
+Tema deschisă folosește texte negre și butoane cu fundal #121419 și text alb.
